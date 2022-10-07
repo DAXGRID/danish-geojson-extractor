@@ -11,24 +11,17 @@ internal static class Program
     {
         // TODO this is some BS, should parse arguments from stdin.
         var setting = new Setting(
-            ftpSetting: new FtpSetting("CrazyUsername", "CrazyPassword")
-        );
+            ftpSetting: new FtpSetting("", "", ""));
 
         using var serviceProvider = BuildServiceProvider(setting);
+
         using var cancellationToken = new CancellationTokenSource();
 
-        var geoJsonExtract = serviceProvider.GetService<GeoJsonExtract>();
-        if (geoJsonExtract is not null)
-        {
-            await geoJsonExtract
-                .StartAsync("", "", cancellationToken.Token)
-                .ConfigureAwait(false);
-        }
-        else
-        {
-            throw new InvalidOperationException(
-                $"Could not resolve the service '{nameof(GeoJsonExtract)}'.");
-        }
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        await MatrikelExtract
+            .StartAsync(setting.FtpSetting)
+            .ConfigureAwait(false);
     }
 
     private static ServiceProvider BuildServiceProvider(Setting setting)
@@ -47,7 +40,6 @@ internal static class Program
                 logging.AddSerilog(logger, true);
             })
             .AddSingleton<Setting>(setting)
-            .AddSingleton<GeoJsonExtract>()
             .BuildServiceProvider();
     }
 }

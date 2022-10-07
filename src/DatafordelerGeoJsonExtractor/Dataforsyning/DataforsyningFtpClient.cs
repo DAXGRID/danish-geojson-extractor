@@ -1,6 +1,6 @@
 using FluentFTP;
 
-namespace DatafordelerGeoJsonExtractor;
+namespace DatafordelerGeoJsonExtractor.Dataforsyning;
 
 internal sealed class DataforsyningFtpClient
 {
@@ -16,17 +16,39 @@ internal sealed class DataforsyningFtpClient
         CancellationToken cancellationToken = default)
     {
         using var client = new AsyncFtpClient(
-            remotePath,
+            _ftpSetting.Host,
             _ftpSetting.Username,
             _ftpSetting.Password);
 
         await client.AutoConnect(cancellationToken).ConfigureAwait(false);
 
-        return (await client
-                .GetListing(remotePath, new(), cancellationToken)
-                .ConfigureAwait(false))
+        var listing = await client
+            .GetListing(remotePath, new(), cancellationToken)
+            .ConfigureAwait(false);
+
+        return listing
             .Where(x => x.Type == FtpObjectType.File)
             .Select(x => (x.Name, x.Created));
+    }
+
+    public async Task<IEnumerable<(string name, DateTime created)>> DirectoriesInPathAsync(
+        string remotePath,
+        CancellationToken cancellationToken = default)
+    {
+        using var client = new AsyncFtpClient(
+            _ftpSetting.Host,
+            _ftpSetting.Username,
+            _ftpSetting.Password);
+
+        await client.AutoConnect(cancellationToken).ConfigureAwait(false);
+
+        var listing = await client
+            .GetListing(remotePath, new(), cancellationToken)
+            .ConfigureAwait(false);
+
+        return listing
+            .Where(x => x.Type == FtpObjectType.Directory)
+            .Select(x => (x.Name, x.Modified));
     }
 
     public async Task DownloadFileAsync(
@@ -35,7 +57,7 @@ internal sealed class DataforsyningFtpClient
         CancellationToken cancellationToken = default)
     {
         using var client = new AsyncFtpClient(
-            "/",
+            _ftpSetting.Host,
             _ftpSetting.Username,
             _ftpSetting.Password);
 
@@ -45,7 +67,7 @@ internal sealed class DataforsyningFtpClient
             .DownloadFile(
                 localPath,
                 remotePath,
-                FtpLocalExists.Skip,
+                FtpLocalExists.Overwrite,
                 FtpVerify.Retry,
                 token: cancellationToken)
             .ConfigureAwait(false);

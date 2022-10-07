@@ -2,11 +2,19 @@ namespace DatafordelerGeoJsonExtractor;
 
 internal sealed record FtpSetting
 {
+    public string Host { get; }
     public string Username { get; }
     public string Password { get; }
 
-    public FtpSetting(string username, string password)
+    public FtpSetting(string host, string username, string password)
     {
+        if (string.IsNullOrWhiteSpace(host))
+        {
+            throw new ArgumentException(
+                "Cannot be null, empty or whitespace.",
+                nameof(host));
+        }
+
         if (string.IsNullOrWhiteSpace(username))
         {
             throw new ArgumentException(
@@ -21,6 +29,7 @@ internal sealed record FtpSetting
                 nameof(password));
         }
 
+        Host = host;
         Username = username;
         Password = password;
     }
