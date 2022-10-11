@@ -22,7 +22,7 @@ internal static class Program
         using var cancellationToken = new CancellationTokenSource();
 
         await MatrikelExtract
-            .StartAsync(setting.FtpSetting, cancellationToken.Token)
+            .StartAsync(setting, cancellationToken.Token)
             .ConfigureAwait(false);
     }
 

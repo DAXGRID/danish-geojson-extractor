@@ -5,7 +5,7 @@ namespace DatafordelerGeoJsonExtractor;
 internal sealed record MatrikelSetting
 {
     [JsonPropertyName("datasets")]
-    private Dictionary<string, bool> Datasets { get; init; }
+    public Dictionary<string, bool> Datasets { get; init; }
 
     [JsonConstructor]
     public MatrikelSetting(Dictionary<string, bool> datasets)
@@ -57,11 +57,11 @@ internal sealed record FtpSetting
 
 internal sealed record Setting
 {
-    [JsonPropertyName("setting")]
+    [JsonPropertyName("ftpSetting")]
     public FtpSetting FtpSetting { get; init; }
 
     [JsonPropertyName("outDirPath")]
-    public string OutPath { get; init; }
+    public string OutDirPath { get; init; }
 
     [JsonPropertyName("matrikel")]
     public MatrikelSetting Matrikel { get; init; }
@@ -69,11 +69,11 @@ internal sealed record Setting
     [JsonConstructor]
     public Setting(
         FtpSetting ftpSetting,
-        string outPath,
+        string outDirPath,
         MatrikelSetting matrikel)
     {
         FtpSetting = ftpSetting;
-        OutPath = outPath;
+        OutDirPath = outDirPath;
         Matrikel = matrikel;
     }
 }
