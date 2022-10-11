@@ -12,7 +12,7 @@ internal static class MatrikelExtract
         CancellationToken cancellationToken = default)
     {
         // If none is enabled we just return since there is nothing to process.
-        if (setting.Matrikel.Datasets.Where(x => x.Value).Any())
+        if (!setting.Matrikel.Datasets.Where(x => x.Value).Any())
         {
             return;
         }
@@ -28,10 +28,7 @@ internal static class MatrikelExtract
             .DirectoriesInPathAsync(remoteRootPath, cancellationToken)
             .ConfigureAwait(false);
 
-        var newestFolder = ftpFiles
-            .Where(x => x.name.StartsWith(folderStartName, true, CultureInfo.InvariantCulture))
-            .OrderBy(x => x.created)
-            .First();
+        var newestFolder = NewestFolder(folderStartName, ftpFiles);
 
         var zipFileOutputPath = Path.Combine(setting.OutDirPath, fileName);
 
@@ -43,6 +40,7 @@ internal static class MatrikelExtract
             .ConfigureAwait(false);
 
         ZipFile.ExtractToDirectory(zipFileOutputPath, setting.OutDirPath);
+
         File.Delete(zipFileOutputPath);
 
         var extractedFile = Path.Combine(
@@ -51,23 +49,32 @@ internal static class MatrikelExtract
 
         foreach (var dataset in setting.Matrikel.Datasets.Where(x => x.Value))
         {
-            using var proc = new Process
+            var deleteFileName = Path.Combine(setting.OutDirPath, dataset.Key, ".geojson");
+            if (File.Exists(deleteFileName))
             {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "ogr2ogr",
-                    Arguments = $"-f GeoJSONSeq {dataset.Key}.geojson {extractedFile} {dataset.Key}",
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true,
-                    WorkingDirectory = setting.OutDirPath
-                }
-            };
+                File.Delete(deleteFileName);
+            }
 
-            proc.Start();
-            await proc.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+            await GeoJsonExtract
+                .ExtractGeoJson(
+                    workingDirectory: setting.OutDirPath,
+                    outFileName: dataset.Key,
+                    inputFileName: extractedFile,
+                    layerNames: dataset.Key,
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
         }
 
         File.Delete(extractedFile);
+    }
+
+    private static (string name, DateTime created) NewestFolder(
+        string folderStartName,
+        IEnumerable<(string name, DateTime created)> ftpFiles)
+    {
+        return ftpFiles
+            .Where(x => x.name.StartsWith(folderStartName, true, CultureInfo.InvariantCulture))
+            .OrderBy(x => x.created)
+            .First();
     }
 }
