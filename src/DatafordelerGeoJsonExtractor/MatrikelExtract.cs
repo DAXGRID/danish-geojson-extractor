@@ -11,7 +11,7 @@ internal static class MatrikelExtract
         Setting setting,
         CancellationToken cancellationToken = default)
     {
-        // If none is enabled we just return.
+        // If none is enabled we just return since there is nothing to process.
         if (setting.Matrikel.Datasets.Where(x => x.Value).Any())
         {
             return;
