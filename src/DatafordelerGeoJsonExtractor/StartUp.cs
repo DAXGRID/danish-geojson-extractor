@@ -6,14 +6,14 @@ namespace DatafordelerGeoJsonExtractor;
 
 internal sealed class StartUp
 {
-    private readonly Setting _setting;
     private readonly ILogger<StartUp> _logger;
+    private readonly Setting _setting;
     private readonly GeoDanmarkExtract _geoDanmarkExtract;
     private readonly MatrikelExtract _matrikelExtract;
 
     public StartUp(
-        Setting setting,
         ILogger<StartUp> logger,
+        Setting setting,
         GeoDanmarkExtract geoDanmarkExtract,
         MatrikelExtract matrikelExtract)
     {
