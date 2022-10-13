@@ -19,8 +19,9 @@ internal static class GeoJsonExtract
                 Arguments = $"-f GeoJSONSeq {outFileName}.geojson {inputFileName} {layerNames}",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
+                RedirectStandardError = true,
                 CreateNoWindow = true,
-                WorkingDirectory = workingDirectory
+                WorkingDirectory = workingDirectory,
             }
         };
 

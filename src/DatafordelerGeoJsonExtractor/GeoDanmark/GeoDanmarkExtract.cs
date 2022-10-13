@@ -1,17 +1,25 @@
 using DatafordelerGeoJsonExtractor.Dataforsyning;
+using Microsoft.Extensions.Logging;
 using System.IO.Compression;
 
-namespace DatafordelerGeoJsonExtractor;
+namespace DatafordelerGeoJsonExtractor.GeoDanmark;
 
-internal static class GeoDanmarkExtract
+internal sealed class GeoDanmarkExtract
 {
-    public static async Task StartAsync(
-        Setting setting,
-        CancellationToken cancellationToken)
+    private readonly ILogger<GeoDanmarkExtract> _logger;
+
+    public GeoDanmarkExtract(ILogger<GeoDanmarkExtract> logger)
+    {
+        _logger = logger;
+    }
+
+    public async Task StartAsync(Setting setting, CancellationToken cancellationToken)
     {
         var datasets = setting.GeoDanmark.Datasets.Where(x => x.Value);
         if (!datasets.Any())
         {
+            _logger.LogInformation(
+                "No datasets enabled for GeoDanmark, so skips extraction.");
             return;
         }
 
@@ -41,6 +49,7 @@ internal static class GeoDanmarkExtract
 
         foreach (var download in downloads)
         {
+            _logger.LogInformation("Starting download {FilePath}", download.remotePath);
             await ftpClient
                 .DownloadFileAsync(
                     download.remotePath,
@@ -61,6 +70,7 @@ internal static class GeoDanmarkExtract
             ExtractUtil.DeleteIfExists(
                 Path.Combine(Path.Combine(setting.OutDirPath, fileName, ".geojson")));
 
+            _logger.LogInformation("Extracting geojson for {FileName}", fileName);
             await GeoJsonExtract
                 .ExtractGeoJson(
                     workingDirectory: setting.OutDirPath,
@@ -69,7 +79,7 @@ internal static class GeoDanmarkExtract
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
-            // Cleanup
+            // Delete output from zip, it is no longer needed.
             ExtractUtil.DeleteIfExists(
                 Path.Combine(setting.OutDirPath, $"{fileName}.gml"));
 

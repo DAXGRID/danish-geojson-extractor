@@ -1,18 +1,27 @@
 using DatafordelerGeoJsonExtractor.Dataforsyning;
-using System.Globalization;
+using Microsoft.Extensions.Logging;
 using System.IO.Compression;
 
-namespace DatafordelerGeoJsonExtractor;
+namespace DatafordelerGeoJsonExtractor.Matrikel;
 
-internal static class MatrikelExtract
+internal sealed class MatrikelExtract
 {
-    public static async Task StartAsync(
+    private readonly ILogger<MatrikelExtract> _logger;
+
+    public MatrikelExtract(ILogger<MatrikelExtract> logger)
+    {
+        _logger = logger;
+    }
+
+    public async Task StartAsync(
         Setting setting,
         CancellationToken cancellationToken = default)
     {
         // If none is enabled we just return since there is nothing to process.
         if (!setting.Matrikel.Datasets.Where(x => x.Value).Any())
         {
+            _logger.LogInformation(
+                "No datasets enabled for Matrikel, so skips extraction.");
             return;
         }
 
@@ -40,7 +49,7 @@ internal static class MatrikelExtract
 
         ZipFile.ExtractToDirectory(zipFileOutputPath, setting.OutDirPath);
 
-        File.Delete(zipFileOutputPath);
+        ExtractUtil.DeleteIfExists(zipFileOutputPath);
 
         var extractedFile = Path.Combine(
             setting.OutDirPath,
@@ -48,11 +57,9 @@ internal static class MatrikelExtract
 
         foreach (var dataset in setting.Matrikel.Datasets.Where(x => x.Value))
         {
-            var deleteFileName = Path.Combine(setting.OutDirPath, dataset.Key, ".geojson");
-            if (File.Exists(deleteFileName))
-            {
-                File.Delete(deleteFileName);
-            }
+            // Cleanup last extracted geojson file if it exists.
+            ExtractUtil.DeleteIfExists(
+                Path.Combine(setting.OutDirPath, dataset.Key, ".geojson"));
 
             await GeoJsonExtract
                 .ExtractGeoJson(
@@ -64,6 +71,7 @@ internal static class MatrikelExtract
                 .ConfigureAwait(false);
         }
 
-        File.Delete(extractedFile);
+        // Delete output from zip, it is no longer needed.
+        ExtractUtil.DeleteIfExists(extractedFile);
     }
 }

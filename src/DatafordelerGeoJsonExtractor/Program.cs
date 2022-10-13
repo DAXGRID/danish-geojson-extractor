@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using DatafordelerGeoJsonExtractor.GeoDanmark;
+using DatafordelerGeoJsonExtractor.Matrikel;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
@@ -12,22 +14,11 @@ internal static class Program
     {
         using var serviceProvider = BuildServiceProvider();
 
-        var setting = serviceProvider.GetService<Setting>();
-
-        if (setting is null)
-        {
-            throw new InvalidOperationException("Could not get setting.");
-        }
+        var start = serviceProvider.GetService<Start>() ??
+            throw new InvalidOperationException($"Could find service '{nameof(Start)}'.");
 
         using var cancellationToken = new CancellationTokenSource();
-
-        await MatrikelExtract
-            .StartAsync(setting, cancellationToken.Token)
-            .ConfigureAwait(false);
-
-        await GeoDanmarkExtract
-            .StartAsync(setting, cancellationToken.Token)
-            .ConfigureAwait(false);
+        await start.StartAsync(cancellationToken.Token).ConfigureAwait(false);
     }
 
     private static ServiceProvider BuildServiceProvider()
@@ -51,7 +42,10 @@ internal static class Program
             {
                 logging.AddSerilog(logger, true);
             })
+            .AddSingleton<Start>()
             .AddSingleton<Setting>(setting)
+            .AddSingleton<GeoDanmarkExtract>()
+            .AddSingleton<MatrikelExtract>()
             .BuildServiceProvider();
     }
 }
