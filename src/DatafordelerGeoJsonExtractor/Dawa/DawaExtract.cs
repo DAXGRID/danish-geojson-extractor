@@ -19,14 +19,11 @@ internal sealed record GeoJsonFeature
     public Geometry? Geometry { get; }
 
     [JsonConstructor]
-    public GeoJsonFeature(
-        string type,
-        Dictionary<string, string?> properties)
+    public GeoJsonFeature(string type, Dictionary<string, string?> properties)
     {
         Type = type;
         Properties = properties;
     }
-
 
     [JsonConstructor]
     public GeoJsonFeature(
