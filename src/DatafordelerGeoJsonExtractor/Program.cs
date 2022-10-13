@@ -11,13 +11,22 @@ internal static class Program
 {
     public static async Task Main()
     {
-        using var serviceProvider = BuildServiceProvider();
-
-        var start = serviceProvider.GetService<StartUp>() ??
-            throw new InvalidOperationException($"Could find service '{nameof(StartUp)}'.");
-
         using var cancellationToken = new CancellationTokenSource();
-        await start.StartAsync(cancellationToken.Token).ConfigureAwait(false);
+
+        try
+        {
+            using var serviceProvider = BuildServiceProvider();
+            var start = serviceProvider.GetService<StartUp>() ??
+                throw new InvalidOperationException(
+                    $"Could find service '{nameof(StartUp)}'.");
+
+            await start.StartAsync(cancellationToken.Token).ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            cancellationToken.Cancel();
+            throw;
+        }
     }
 
     private static ServiceProvider BuildServiceProvider()

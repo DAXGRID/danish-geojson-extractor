@@ -27,14 +27,26 @@ internal sealed class StartUp
     {
         _logger.LogInformation("Starting GeoJSON extraction.");
 
-        _logger.LogInformation("Starting processing matrikel.");
-        await _matrikelExtract
-            .StartAsync(_setting, cancellationToken)
-            .ConfigureAwait(false);
+        try
+        {
+            _logger.LogInformation(
+                "Starting processing {Name}.", nameof(_setting.Matrikel));
 
-        _logger.LogInformation("Starting processing GeoDanmark.");
-        await _geoDanmarkExtract
-            .StartAsync(_setting, cancellationToken)
-            .ConfigureAwait(false);
+            await _matrikelExtract
+                .StartAsync(_setting, cancellationToken)
+                .ConfigureAwait(false);
+
+            _logger.LogInformation(
+                "Starting processing {Name}.", nameof(_setting.GeoDanmark));
+
+            await _geoDanmarkExtract
+                .StartAsync(_setting, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("{Exception}", ex);
+            throw;
+        }
     }
 }
