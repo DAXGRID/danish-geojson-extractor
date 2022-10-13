@@ -3,7 +3,6 @@ using DatafordelerGeoJsonExtractor.Matrikel;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
-using Serilog.Formatting.Compact;
 using System.Text.Json;
 
 namespace DatafordelerGeoJsonExtractor;
@@ -27,8 +26,7 @@ internal static class Program
             .MinimumLevel.Information()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
             .MinimumLevel.Override("System", LogEventLevel.Warning)
-            .Enrich.FromLogContext()
-            .WriteTo.Console(new CompactJsonFormatter())
+            .WriteTo.Console()
             .CreateLogger();
 
         var settingsJson = JsonDocument.Parse(File.ReadAllText("appsettings.json"))
