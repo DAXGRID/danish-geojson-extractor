@@ -14,6 +14,18 @@ internal sealed record MatrikelSetting
     }
 }
 
+internal sealed record GeoDanmarkSetting
+{
+    [JsonPropertyName("datasets")]
+    public Dictionary<string, bool> Datasets { get; init; }
+
+    [JsonConstructor]
+    public GeoDanmarkSetting(Dictionary<string, bool> datasets)
+    {
+        Datasets = datasets;
+    }
+}
+
 internal sealed record FtpSetting
 {
     [JsonPropertyName("host")]
@@ -66,14 +78,19 @@ internal sealed record Setting
     [JsonPropertyName("matrikel")]
     public MatrikelSetting Matrikel { get; init; }
 
+    [JsonPropertyName("geoDanmark")]
+    public GeoDanmarkSetting GeoDanmark { get; init; }
+
     [JsonConstructor]
     public Setting(
         FtpSetting ftpSetting,
         string outDirPath,
-        MatrikelSetting matrikel)
+        MatrikelSetting matrikel,
+        GeoDanmarkSetting geoDanmark)
     {
         FtpSetting = ftpSetting;
         OutDirPath = outDirPath;
         Matrikel = matrikel;
+        GeoDanmark = geoDanmark;
     }
 }

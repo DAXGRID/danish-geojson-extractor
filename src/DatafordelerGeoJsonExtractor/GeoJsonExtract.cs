@@ -8,7 +8,7 @@ internal static class GeoJsonExtract
         string workingDirectory,
         string outFileName,
         string inputFileName,
-        string layerNames,
+        string? layerNames = null,
         CancellationToken cancellationToken = default)
     {
         using var proc = new Process

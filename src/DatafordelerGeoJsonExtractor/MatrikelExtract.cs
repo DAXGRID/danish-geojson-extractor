@@ -21,13 +21,13 @@ internal static class MatrikelExtract
         const string fileName = "MatrikelGeometriGaeldendeDKComplete.zip";
         const string outputFileName = "MatrikelGeometriGaeldendeDKComplete.gpkg";
 
-        var ftpClient = new DataforsyningFtpClient(setting.FtpSetting);
+        using var ftpClient = new DataforsyningFtpClient(setting.FtpSetting);
 
         var ftpFiles = await ftpClient
             .DirectoriesInPathAsync(remoteRootPath, cancellationToken)
             .ConfigureAwait(false);
 
-        var newestFolder = NewestFolder(folderStartName, ftpFiles);
+        var newestFolder = ExtractUtil.NewestDirectory(folderStartName, ftpFiles);
 
         var zipFileOutputPath = Path.Combine(setting.OutDirPath, fileName);
 
@@ -65,15 +65,5 @@ internal static class MatrikelExtract
         }
 
         File.Delete(extractedFile);
-    }
-
-    private static (string name, DateTime created) NewestFolder(
-        string folderStartName,
-        IEnumerable<(string name, DateTime created)> ftpFiles)
-    {
-        return ftpFiles
-            .Where(x => x.name.StartsWith(folderStartName, true, CultureInfo.InvariantCulture))
-            .OrderBy(x => x.created)
-            .First();
     }
 }

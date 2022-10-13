@@ -2,27 +2,28 @@ using FluentFTP;
 
 namespace DatafordelerGeoJsonExtractor.Dataforsyning;
 
-internal sealed class DataforsyningFtpClient
+internal sealed class DataforsyningFtpClient : IDisposable
 {
-    private readonly FtpSetting _ftpSetting;
+    private readonly AsyncFtpClient _client;
 
     public DataforsyningFtpClient(FtpSetting ftpSetting)
     {
-        _ftpSetting = ftpSetting;
+        _client = new AsyncFtpClient(
+            ftpSetting.Host,
+            ftpSetting.Username,
+            ftpSetting.Password);
     }
 
     public async Task<IEnumerable<(string name, DateTime created)>> FilesInPathAsync(
         string remotePath,
         CancellationToken cancellationToken = default)
     {
-        using var client = new AsyncFtpClient(
-            _ftpSetting.Host,
-            _ftpSetting.Username,
-            _ftpSetting.Password);
+        if (!_client.IsConnected)
+        {
+            await _client.AutoConnect(cancellationToken).ConfigureAwait(false);
+        }
 
-        await client.AutoConnect(cancellationToken).ConfigureAwait(false);
-
-        var listing = await client
+        var listing = await _client
             .GetListing(remotePath, new(), cancellationToken)
             .ConfigureAwait(false);
 
@@ -35,14 +36,12 @@ internal sealed class DataforsyningFtpClient
         string remotePath,
         CancellationToken cancellationToken = default)
     {
-        using var client = new AsyncFtpClient(
-            _ftpSetting.Host,
-            _ftpSetting.Username,
-            _ftpSetting.Password);
+        if (!_client.IsConnected)
+        {
+            await _client.AutoConnect(cancellationToken).ConfigureAwait(false);
+        }
 
-        await client.AutoConnect(cancellationToken).ConfigureAwait(false);
-
-        var listing = await client
+        var listing = await _client
             .GetListing(remotePath, new(), cancellationToken)
             .ConfigureAwait(false);
 
@@ -56,14 +55,12 @@ internal sealed class DataforsyningFtpClient
         string localPath,
         CancellationToken cancellationToken = default)
     {
-        using var client = new AsyncFtpClient(
-            _ftpSetting.Host,
-            _ftpSetting.Username,
-            _ftpSetting.Password);
+        if (!_client.IsConnected)
+        {
+            await _client.AutoConnect(cancellationToken).ConfigureAwait(false);
+        }
 
-        await client.AutoConnect(cancellationToken).ConfigureAwait(false);
-
-        await client
+        await _client
             .DownloadFile(
                 localPath,
                 remotePath,
@@ -71,5 +68,10 @@ internal sealed class DataforsyningFtpClient
                 FtpVerify.Retry,
                 token: cancellationToken)
             .ConfigureAwait(false);
+    }
+
+    public void Dispose()
+    {
+        _client.Dispose();
     }
 }

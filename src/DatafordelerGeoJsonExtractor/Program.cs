@@ -24,6 +24,10 @@ internal static class Program
         await MatrikelExtract
             .StartAsync(setting, cancellationToken.Token)
             .ConfigureAwait(false);
+
+        await GeoDanmarkExtract
+            .StartAsync(setting, cancellationToken.Token)
+            .ConfigureAwait(false);
     }
 
     private static ServiceProvider BuildServiceProvider()
