@@ -13,8 +13,8 @@ internal static class Program
     {
         using var serviceProvider = BuildServiceProvider();
 
-        var start = serviceProvider.GetService<Start>() ??
-            throw new InvalidOperationException($"Could find service '{nameof(Start)}'.");
+        var start = serviceProvider.GetService<StartUp>() ??
+            throw new InvalidOperationException($"Could find service '{nameof(StartUp)}'.");
 
         using var cancellationToken = new CancellationTokenSource();
         await start.StartAsync(cancellationToken.Token).ConfigureAwait(false);
@@ -40,7 +40,7 @@ internal static class Program
             {
                 logging.AddSerilog(logger, true);
             })
-            .AddSingleton<Start>()
+            .AddSingleton<StartUp>()
             .AddSingleton<Setting>(setting)
             .AddSingleton<GeoDanmarkExtract>()
             .AddSingleton<MatrikelExtract>()

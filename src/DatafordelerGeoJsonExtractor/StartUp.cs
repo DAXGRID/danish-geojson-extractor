@@ -4,16 +4,16 @@ using Microsoft.Extensions.Logging;
 
 namespace DatafordelerGeoJsonExtractor;
 
-internal sealed class Start
+internal sealed class StartUp
 {
     private readonly Setting _setting;
-    private readonly ILogger<Start> _logger;
+    private readonly ILogger<StartUp> _logger;
     private readonly GeoDanmarkExtract _geoDanmarkExtract;
     private readonly MatrikelExtract _matrikelExtract;
 
-    public Start(
+    public StartUp(
         Setting setting,
-        ILogger<Start> logger,
+        ILogger<StartUp> logger,
         GeoDanmarkExtract geoDanmarkExtract,
         MatrikelExtract matrikelExtract)
     {
