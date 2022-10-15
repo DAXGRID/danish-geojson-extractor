@@ -12,35 +12,28 @@ internal static class MapDawa
         return new GeoJsonFeature("Feature", RetrieveProperties(x));
     }
 
-    public static GeoJsonFeature Map(DawaAccessAddress dawaAccessAddress)
+    public static GeoJsonFeature Map(DawaAccessAddress accessAddress)
     {
-        var properties = dawaAccessAddress
-            .GetType()
-            .GetProperties()
-            .Where(x =>
-                   x.Name != nameof(dawaAccessAddress.EastCoordinate) ||
-                   x.Name != nameof(dawaAccessAddress.NorthCoordinate))
-            .ToDictionary(
-                x => x.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name
-                ?? throw new InvalidOperationException("Could not find name of property."),
-                x => x.GetValue(x)?.ToString());
+        var properties = RetrieveProperties(accessAddress);
+        properties.Remove("etrs89koordinat_øst");
+        properties.Remove("etrs89koordinat_nord");
 
         return new GeoJsonFeature(
             "Feature",
             properties,
             new Point(
-                dawaAccessAddress.NorthCoordinate,
-                dawaAccessAddress.EastCoordinate));
+                accessAddress.NorthCoordinate,
+                accessAddress.EastCoordinate));
     }
 
-    private static Dictionary<string, string?> RetrieveProperties(object x)
+    private static Dictionary<string, string?> RetrieveProperties(object obj)
     {
-        return x
+        return obj
             .GetType()
             .GetProperties()
             .ToDictionary(
                 x => x.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name
                 ?? throw new InvalidOperationException("Could not find name of property."),
-                x => x.GetValue(x)?.ToString() ?? null);
+                x => x.GetValue(obj)?.ToString());
     }
 }

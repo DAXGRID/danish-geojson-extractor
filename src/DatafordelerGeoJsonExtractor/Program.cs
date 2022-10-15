@@ -1,4 +1,5 @@
-﻿using DatafordelerGeoJsonExtractor.GeoDanmark;
+﻿using DatafordelerGeoJsonExtractor.Dawa;
+using DatafordelerGeoJsonExtractor.GeoDanmark;
 using DatafordelerGeoJsonExtractor.Matrikel;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -53,6 +54,7 @@ internal static class Program
             .AddSingleton<Setting>(setting)
             .AddSingleton<GeoDanmarkExtract>()
             .AddSingleton<MatrikelExtract>()
+            .AddSingleton<DawaExtract>()
             .BuildServiceProvider();
     }
 }

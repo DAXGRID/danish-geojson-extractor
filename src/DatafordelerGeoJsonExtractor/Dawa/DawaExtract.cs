@@ -12,13 +12,12 @@ internal sealed record GeoJsonFeature
     public string Type { get; }
 
     [JsonProperty("properties")]
-    [JsonConverter(typeof(GeometryConverter))]
     public Dictionary<string, string?> Properties { get; }
 
-    [JsonProperty("geometry")]
+    [JsonProperty("geometry", NullValueHandling = NullValueHandling.Ignore)]
+    [JsonConverter(typeof(GeometryConverter))]
     public Geometry? Geometry { get; }
 
-    [JsonConstructor]
     public GeoJsonFeature(string type, Dictionary<string, string?> properties)
     {
         Type = type;
@@ -139,9 +138,9 @@ internal sealed class DawaExtract
         var path = Path.Combine(outputDirPath, $"{outputName}.geojson");
 
         using var lineWriter = new StreamWriter(path);
-        await foreach (var x in stream.ConfigureAwait(false))
+        await foreach (var line in stream.ConfigureAwait(false))
         {
-            var json = JsonConvert.SerializeObject(mapFunc(x));
+            var json = JsonConvert.SerializeObject(mapFunc(line));
             await lineWriter.WriteLineAsync(json).ConfigureAwait(false);
         }
     }
