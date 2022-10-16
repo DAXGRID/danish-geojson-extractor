@@ -19,7 +19,7 @@ internal sealed class MatrikelExtract
     {
         var datasets = ExtractUtil.GetEnabled(setting.Matrikel.Datasets);
         // If none is enabled we just return since there is nothing to process.
-        if (datasets.Any())
+        if (!datasets.Any())
         {
             _logger.LogInformation("Skipping, no datasets enabled for Matrikel");
             return;
