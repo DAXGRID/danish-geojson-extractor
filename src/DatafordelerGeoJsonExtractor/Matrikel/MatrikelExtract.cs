@@ -40,6 +40,7 @@ internal sealed class MatrikelExtract
 
         var zipFileOutputPath = Path.Combine(setting.OutDirPath, fileName);
 
+        _logger.LogInformation("Starting downloading matrikel data.");
         await ftpClient
             .DownloadFileAsync(
                 remotePath: Path.Combine(newestFolder.name, fileName),
@@ -47,6 +48,7 @@ internal sealed class MatrikelExtract
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
+        _logger.LogInformation("Extracting matrikel to output folder.");
         ZipFile.ExtractToDirectory(zipFileOutputPath, setting.OutDirPath);
 
         ExtractUtil.DeleteIfExists(zipFileOutputPath);
@@ -57,6 +59,8 @@ internal sealed class MatrikelExtract
 
         foreach (var dataset in setting.Matrikel.Datasets.Where(x => x.Value))
         {
+            _logger.LogInformation("Processing {Name}", dataset.Key);
+
             // Cleanup last extracted geojson file if it exists.
             ExtractUtil.DeleteIfExists(
                 Path.Combine(setting.OutDirPath, dataset.Key, ".geojson"));
