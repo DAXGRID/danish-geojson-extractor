@@ -23,4 +23,7 @@ internal static class ExtractUtil
             File.Delete(filePath);
         }
     }
+
+    public static IEnumerable<string> GetEnabled(Dictionary<string, bool> x) =>
+        x.Where(x => x.Value).Select(x => x.Key);
 }

@@ -15,7 +15,7 @@ internal sealed class GeoDanmarkExtract
 
     public async Task StartAsync(Setting setting, CancellationToken cancellationToken)
     {
-        var datasets = setting.GeoDanmark.Datasets.Where(x => x.Value);
+        var datasets = ExtractUtil.GetEnabled(setting.GeoDanmark.Datasets);
         if (!datasets.Any())
         {
             _logger.LogInformation(
@@ -40,9 +40,9 @@ internal sealed class GeoDanmarkExtract
                 remoteRootPath,
                 newestDirectory.name,
                 "Tema",
-                $"{dataset.Key}.zip");
+                $"{dataset}.zip");
 
-            var localPath = Path.Combine(setting.OutDirPath, $"{dataset.Key}.zip");
+            var localPath = Path.Combine(setting.OutDirPath, $"{dataset}.zip");
 
             return (remotePath: remotePath, localPath: localPath);
         });

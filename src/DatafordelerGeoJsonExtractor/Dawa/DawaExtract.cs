@@ -49,12 +49,9 @@ internal sealed class DawaExtract
         Setting setting,
         CancellationToken cancellationToken = default)
     {
-        var enableDatasets = setting.Dawa.Datasets
-            .Where(x => x.Value)
-            .Select(x => x.Key);
-
+        var datasets = ExtractUtil.GetEnabled(setting.Dawa.Datasets);
         // If none is enabled we just return since there is nothing to process.
-        if (!enableDatasets.Any())
+        if (!datasets.Any())
         {
             _logger.LogInformation(
                 "No datasets enabled for Dawa, so skips extraction.");
@@ -72,7 +69,7 @@ internal sealed class DawaExtract
             .GetLatestTransactionAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        if (enableDatasets.Contains(accessAddressOutputName))
+        if (datasets.Contains(accessAddressOutputName))
         {
             _logger.LogInformation("Starting processing {Name}", accessAddressOutputName);
 
@@ -86,7 +83,7 @@ internal sealed class DawaExtract
                 MapDawa.Map).ConfigureAwait(false);
         }
 
-        if (enableDatasets.Contains(unitAddressOutputName))
+        if (datasets.Contains(unitAddressOutputName))
         {
             _logger.LogInformation("Starting processing {Name}", unitAddressOutputName);
 
@@ -100,7 +97,7 @@ internal sealed class DawaExtract
                 MapDawa.Map).ConfigureAwait(false);
         }
 
-        if (enableDatasets.Contains(roadOutputName))
+        if (datasets.Contains(roadOutputName))
         {
             _logger.LogInformation("Starting processing {Name}", roadOutputName);
 
@@ -114,7 +111,7 @@ internal sealed class DawaExtract
                 MapDawa.Map).ConfigureAwait(false);
         }
 
-        if (enableDatasets.Contains(postCodeOutputName))
+        if (datasets.Contains(postCodeOutputName))
         {
             _logger.LogInformation("Starting processing {Name}", postCodeOutputName);
 

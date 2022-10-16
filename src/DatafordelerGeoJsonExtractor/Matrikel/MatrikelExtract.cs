@@ -17,11 +17,11 @@ internal sealed class MatrikelExtract
         Setting setting,
         CancellationToken cancellationToken = default)
     {
+        var datasets = ExtractUtil.GetEnabled(setting.Matrikel.Datasets);
         // If none is enabled we just return since there is nothing to process.
-        if (!setting.Matrikel.Datasets.Where(x => x.Value).Any())
+        if (datasets.Any())
         {
-            _logger.LogInformation(
-                "No datasets enabled for Matrikel, so skips extraction.");
+            _logger.LogInformation("Skipping, no datasets enabled for Matrikel");
             return;
         }
 
@@ -57,20 +57,20 @@ internal sealed class MatrikelExtract
             setting.OutDirPath,
             outputFileName);
 
-        foreach (var dataset in setting.Matrikel.Datasets.Where(x => x.Value))
+        foreach (var dataset in datasets)
         {
-            _logger.LogInformation("Processing {Name}", dataset.Key);
+            _logger.LogInformation("Processing {Name}", dataset);
 
             // Cleanup last extracted geojson file if it exists.
             ExtractUtil.DeleteIfExists(
-                Path.Combine(setting.OutDirPath, dataset.Key, ".geojson"));
+                Path.Combine(setting.OutDirPath, dataset, ".geojson"));
 
             await GeoJsonExtract
                 .ExtractGeoJson(
                     workingDirectory: setting.OutDirPath,
-                    outFileName: dataset.Key,
+                    outFileName: dataset,
                     inputFileName: extractedFile,
-                    layerNames: dataset.Key,
+                    layerNames: dataset,
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
         }
