@@ -16,7 +16,7 @@ internal static class GeoJsonExtract
             StartInfo = new ProcessStartInfo
             {
                 FileName = "ogr2ogr",
-                Arguments = $"-f GeoJSONSeq {outFileName}.geojson {inputFileName} {layerNames}",
+                Arguments = $"-f GeoJSON {outFileName}.geojson {inputFileName} {layerNames}",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,

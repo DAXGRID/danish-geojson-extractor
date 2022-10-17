@@ -9,14 +9,14 @@ namespace DatafordelerGeoJsonExtractor.Dawa;
 internal sealed record GeoJsonFeature
 {
     [JsonProperty("type")]
-    public string Type { get; }
+    public string Type { get; init; }
 
     [JsonProperty("properties")]
-    public Dictionary<string, string?> Properties { get; }
+    public Dictionary<string, string?> Properties { get; init; }
 
     [JsonProperty("geometry", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(GeometryConverter))]
-    public Geometry? Geometry { get; }
+    public Geometry? Geometry { get; init; }
 
     public GeoJsonFeature(string type, Dictionary<string, string?> properties)
     {
@@ -76,7 +76,7 @@ internal sealed class DawaExtract
             var accessAddressesEnumerable = client
                 .GetAllAccessAddresses(tId.Id, cancellationToken);
 
-            await ProcessStream<DawaAccessAddress>(
+            await MakeGeoJsonFile<DawaAccessAddress>(
                 setting.OutDirPath,
                 accessAddressOutputName,
                 accessAddressesEnumerable,
@@ -90,7 +90,7 @@ internal sealed class DawaExtract
             var unitAddressEnumerable = client
                 .GetAllUnitAddresses(tId.Id, cancellationToken);
 
-            await ProcessStream<DawaUnitAddress>(
+            await MakeGeoJsonFile<DawaUnitAddress>(
                 setting.OutDirPath,
                 unitAddressOutputName,
                 unitAddressEnumerable,
@@ -104,7 +104,7 @@ internal sealed class DawaExtract
             var roadEnumerable = client
                 .GetAllRoadsAsync(tId.Id, cancellationToken);
 
-            await ProcessStream<DawaRoad>(
+            await MakeGeoJsonFile<DawaRoad>(
                 setting.OutDirPath,
                 roadOutputName,
                 roadEnumerable,
@@ -118,7 +118,7 @@ internal sealed class DawaExtract
             var postCodeEnumerable = client
                 .GetAllPostCodesAsync(tId.Id, cancellationToken);
 
-            await ProcessStream<DawaPostCode>(
+            await MakeGeoJsonFile<DawaPostCode>(
                 setting.OutDirPath,
                 postCodeOutputName,
                 postCodeEnumerable,
@@ -126,7 +126,7 @@ internal sealed class DawaExtract
         }
     }
 
-    private static async Task ProcessStream<T>(
+    private static async Task MakeGeoJsonFile<T>(
         string outputDirPath,
         string outputName,
         IAsyncEnumerable<T> stream,
@@ -134,11 +134,38 @@ internal sealed class DawaExtract
     {
         var path = Path.Combine(outputDirPath, $"{outputName}.geojson");
 
-        using var lineWriter = new StreamWriter(path);
+        using var writer = new StreamWriter(path);
+
+        await writer.WriteLineAsync('{').ConfigureAwait(false);
+        await writer.WriteLineAsync("\"type\": \"FeatureCollection\",").ConfigureAwait(false);
+        await writer.WriteLineAsync($"\"name\": \"{outputName}\",").ConfigureAwait(false);
+        await writer.WriteLineAsync("\"crs\": { \"type\": \"name\", \"properties\": { \"name\": \"urn:ogc:def:crs:EPSG::25832\" } },").ConfigureAwait(false);
+        await writer.WriteLineAsync("\"features\": [").ConfigureAwait(false);
+
+        var serializeSettings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        };
+
+        var first = true;
         await foreach (var line in stream.ConfigureAwait(false))
         {
-            var json = JsonConvert.SerializeObject(mapFunc(line));
-            await lineWriter.WriteLineAsync(json).ConfigureAwait(false);
+            if (first)
+            {
+                var json = JsonConvert.SerializeObject(mapFunc(line), serializeSettings);
+                await writer.WriteLineAsync(json).ConfigureAwait(false);
+                first = false;
+            }
+            else
+            {
+                var json = JsonConvert.SerializeObject(mapFunc(line), serializeSettings);
+                await writer.WriteLineAsync(',').ConfigureAwait(false);
+                await writer.WriteAsync(json).ConfigureAwait(false);
+            }
         }
+
+        await writer.WriteLineAsync("").ConfigureAwait(false);
+        await writer.WriteLineAsync(']').ConfigureAwait(false);
+        await writer.WriteLineAsync('}').ConfigureAwait(false);
     }
 }
