@@ -1,8 +1,9 @@
 using DawaAddress;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO.Converters;
+using NetTopologySuite.IO;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DanishGeoJsonExtractor.Dawa;
 
@@ -14,9 +15,11 @@ internal sealed record GeoJsonFeature
     [JsonProperty("properties")]
     public Dictionary<string, string?> Properties { get; init; }
 
-    [JsonProperty("geometry", NullValueHandling = NullValueHandling.Ignore)]
-    [JsonConverter(typeof(GeometryConverter))]
+    [JsonIgnore]
     public Geometry? Geometry { get; init; }
+
+    [JsonProperty("geometry", NullValueHandling = NullValueHandling.Ignore)]
+    public JObject? GeometryField => GeoJsonJObject();
 
     public GeoJsonFeature(string type, Dictionary<string, string?> properties)
     {
@@ -33,6 +36,24 @@ internal sealed record GeoJsonFeature
         Type = type;
         Properties = properties;
         Geometry = geometry;
+    }
+
+    private JObject? GeoJsonJObject()
+    {
+        if (Geometry is not null)
+        {
+            var serializer = GeoJsonSerializer.Create();
+            using (var stringWriter = new StringWriter())
+            using (var jsonWriter = new JsonTextWriter(stringWriter))
+            {
+                serializer.Serialize(jsonWriter, Geometry);
+                return JObject.Parse(stringWriter.ToString());
+            }
+        }
+        else
+        {
+            return null;
+        }
     }
 }
 
@@ -53,8 +74,7 @@ internal sealed class DawaExtract
         // If none is enabled we just return since there is nothing to process.
         if (!datasets.Any())
         {
-            _logger.LogInformation(
-                "No datasets enabled for Dawa, so skips extraction.");
+            _logger.LogInformation("No datasets enabled for Dawa, so skips extraction.");
             return;
         }
 
