@@ -1,4 +1,4 @@
-# Datafordeler GeoJSON extractor
+# Danish GeoJSON extractor
 
 Downloads and extracts GeoJSON from a specific set of Datafordeler sources.
 

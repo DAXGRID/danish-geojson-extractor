@@ -1,12 +1,12 @@
-﻿using DatafordelerGeoJsonExtractor.Dawa;
-using DatafordelerGeoJsonExtractor.GeoDanmark;
-using DatafordelerGeoJsonExtractor.Matrikel;
+﻿using DanishGeoJsonExtractor.Dawa;
+using DanishGeoJsonExtractor.GeoDanmark;
+using DanishGeoJsonExtractor.Matrikel;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
 using System.Text.Json;
 
-namespace DatafordelerGeoJsonExtractor;
+namespace DanishGeoJsonExtractor;
 
 internal static class Program
 {

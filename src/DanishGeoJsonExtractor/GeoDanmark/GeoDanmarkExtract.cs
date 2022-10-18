@@ -1,8 +1,8 @@
-using DatafordelerGeoJsonExtractor.Dataforsyning;
+using DanishGeoJsonExtractor.Dataforsyning;
 using Microsoft.Extensions.Logging;
 using System.IO.Compression;
 
-namespace DatafordelerGeoJsonExtractor.GeoDanmark;
+namespace DanishGeoJsonExtractor.GeoDanmark;
 
 internal sealed class GeoDanmarkExtract
 {

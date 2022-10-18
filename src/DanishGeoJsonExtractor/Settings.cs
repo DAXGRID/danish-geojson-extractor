@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace DatafordelerGeoJsonExtractor;
+namespace DanishGeoJsonExtractor;
 
 internal sealed record MatrikelSetting
 {

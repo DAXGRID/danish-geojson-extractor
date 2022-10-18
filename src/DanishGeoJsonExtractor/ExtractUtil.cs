@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace DatafordelerGeoJsonExtractor;
+namespace DanishGeoJsonExtractor;
 
 internal static class ExtractUtil
 {

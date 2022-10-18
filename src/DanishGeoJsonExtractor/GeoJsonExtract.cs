@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace DatafordelerGeoJsonExtractor;
+namespace DanishGeoJsonExtractor;
 
 internal static class GeoJsonExtract
 {

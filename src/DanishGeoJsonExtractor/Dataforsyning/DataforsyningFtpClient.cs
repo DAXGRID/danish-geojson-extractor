@@ -1,6 +1,6 @@
 using FluentFTP;
 
-namespace DatafordelerGeoJsonExtractor.Dataforsyning;
+namespace DanishGeoJsonExtractor.Dataforsyning;
 
 internal sealed class DataforsyningFtpClient : IDisposable
 {

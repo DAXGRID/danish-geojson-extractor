@@ -1,9 +1,9 @@
-using DatafordelerGeoJsonExtractor.Dawa;
-using DatafordelerGeoJsonExtractor.GeoDanmark;
-using DatafordelerGeoJsonExtractor.Matrikel;
+using DanishGeoJsonExtractor.Dawa;
+using DanishGeoJsonExtractor.GeoDanmark;
+using DanishGeoJsonExtractor.Matrikel;
 using Microsoft.Extensions.Logging;
 
-namespace DatafordelerGeoJsonExtractor;
+namespace DanishGeoJsonExtractor;
 
 internal sealed class StartUp
 {

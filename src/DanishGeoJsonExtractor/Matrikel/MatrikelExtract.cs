@@ -1,8 +1,8 @@
-using DatafordelerGeoJsonExtractor.Dataforsyning;
+using DanishGeoJsonExtractor.Dataforsyning;
 using Microsoft.Extensions.Logging;
 using System.IO.Compression;
 
-namespace DatafordelerGeoJsonExtractor.Matrikel;
+namespace DanishGeoJsonExtractor.Matrikel;
 
 internal sealed class MatrikelExtract
 {

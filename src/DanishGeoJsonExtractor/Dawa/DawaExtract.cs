@@ -4,7 +4,7 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.IO.Converters;
 using Newtonsoft.Json;
 
-namespace DatafordelerGeoJsonExtractor.Dawa;
+namespace DanishGeoJsonExtractor.Dawa;
 
 internal sealed record GeoJsonFeature
 {

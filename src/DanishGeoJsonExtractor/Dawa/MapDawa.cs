@@ -3,7 +3,7 @@ using NetTopologySuite.Geometries;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
-namespace DatafordelerGeoJsonExtractor.Dawa;
+namespace DanishGeoJsonExtractor.Dawa;
 
 internal static class MapDawa
 {
