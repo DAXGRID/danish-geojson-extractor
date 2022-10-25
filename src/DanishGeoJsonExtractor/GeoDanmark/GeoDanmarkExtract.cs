@@ -49,8 +49,11 @@ internal sealed class GeoDanmarkExtract
 
         foreach (var download in downloads)
         {
+            // We use multiple ftp clients because datafordeler might time it out.
+            using var localFtpClient = new DataforsyningFtpClient(setting.FtpSetting);
+
             _logger.LogInformation("Starting download {FilePath}", download.remotePath);
-            await ftpClient
+            await localFtpClient
                 .DownloadFileAsync(
                     download.remotePath,
                     download.localPath,
@@ -68,7 +71,7 @@ internal sealed class GeoDanmarkExtract
 
             // Check if output files already exists, if they do delete them.
             ExtractUtil.DeleteIfExists(
-                Path.Combine(Path.Combine(setting.OutDirPath, fileName, ".geojson")));
+                Path.Combine(Path.Combine(setting.OutDirPath, $"{fileName}.geojson")));
 
             _logger.LogInformation("Extracting geojson for {FileName}", fileName);
             await GeoJsonExtract
