@@ -22,8 +22,8 @@ internal static class MapDawa
             "Feature",
             properties,
             new Point(
-                accessAddress.NorthCoordinate,
-                accessAddress.EastCoordinate));
+                accessAddress.EastCoordinate,
+                accessAddress.NorthCoordinate));
     }
 
     private static Dictionary<string, string?> RetrieveProperties(object obj)
