@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DawaAddress" Version="0.10.0" />
+    <PackageReference Include="DawaAddress" Version="0.11.0" />
     <PackageReference Include="fluentftp" Version="41.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />

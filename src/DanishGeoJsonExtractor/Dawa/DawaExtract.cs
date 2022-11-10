@@ -82,6 +82,7 @@ internal sealed class DawaExtract
         const string unitAddressOutputName = "enhedsadresse";
         const string roadOutputName = "vej";
         const string postCodeOutputName = "postnummer";
+        const string namedRoadMunicipalDistrictOutputName = "navngivenvejkommunedel";
 
         using var httpClient = new HttpClient();
         var client = new DawaClient(httpClient);
@@ -142,6 +143,22 @@ internal sealed class DawaExtract
                 setting.OutDirPath,
                 postCodeOutputName,
                 postCodeEnumerable,
+                MapDawa.Map).ConfigureAwait(false);
+        }
+
+        if (datasets.Contains(namedRoadMunicipalDistrictOutputName))
+        {
+            _logger.LogInformation(
+                "Starting processing {Name}",
+                namedRoadMunicipalDistrictOutputName);
+
+            var namedMunicipalDistrictEnumerable = client
+                .GetAllNamedRoadMunicipalDistrictsAsync(tId.Id, cancellationToken);
+
+            await MakeGeoJsonFile<NamedRoadMunicipalDistrict>(
+                setting.OutDirPath,
+                namedRoadMunicipalDistrictOutputName,
+                namedMunicipalDistrictEnumerable,
                 MapDawa.Map).ConfigureAwait(false);
         }
     }
