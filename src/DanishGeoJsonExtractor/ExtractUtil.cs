@@ -16,6 +16,18 @@ internal static class ExtractUtil
             .First();
     }
 
+    public static (string name, DateTime created) NewestFile(
+        string fileName,
+        IEnumerable<(string name, DateTime created)> ftpFiles)
+    {
+        return ftpFiles
+            .Where(x => x.name.StartsWith(fileName,
+                                          true,
+                                          CultureInfo.InvariantCulture))
+            .OrderBy(x => x.created)
+            .First();
+    }
+
     public static void DeleteIfExists(string filePath)
     {
         if (File.Exists(filePath))

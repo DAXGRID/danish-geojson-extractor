@@ -19,6 +19,10 @@ When using data from the `matrikel` section you've to subscribe to the predefine
 
 When using data from the `geoDanmark` section you've to subscribe to the predefined dataset named `GeoDanmark60_GML`.
 
+### Using StedNavn
+
+When using data from the `stedNavn` section you've to subscribe to the predefined dataset named `DKstednavneBearbejdedeNohist_GML321`.
+
 ## Dependencies
 
 Has dependency on GDAL (ogr2ogr), it is required to be in the shell path.

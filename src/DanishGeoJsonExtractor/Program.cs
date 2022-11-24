@@ -1,6 +1,7 @@
 ﻿using DanishGeoJsonExtractor.Dawa;
 using DanishGeoJsonExtractor.GeoDanmark;
 using DanishGeoJsonExtractor.Matrikel;
+using DanishGeoJsonExtractor.StedNavn;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
@@ -55,6 +56,7 @@ internal static class Program
             .AddSingleton<GeoDanmarkExtract>()
             .AddSingleton<MatrikelExtract>()
             .AddSingleton<DawaExtract>()
+            .AddSingleton<StedNavnExtract>()
             .BuildServiceProvider();
     }
 }
