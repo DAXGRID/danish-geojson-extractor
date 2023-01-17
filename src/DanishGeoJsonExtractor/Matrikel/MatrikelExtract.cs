@@ -17,7 +17,11 @@ internal sealed class MatrikelExtract
         Setting setting,
         CancellationToken cancellationToken = default)
     {
-        var datasets = ExtractUtil.GetEnabled(setting.Matrikel.Datasets);
+        var datasets = ExtractUtil
+            .GetEnabled(setting.Matrikel.Datasets)
+            .ToList()
+            .AsReadOnly();
+
         // If none is enabled we just return since there is nothing to process.
         if (!datasets.Any())
         {

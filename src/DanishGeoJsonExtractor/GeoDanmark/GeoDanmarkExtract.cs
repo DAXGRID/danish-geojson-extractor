@@ -15,7 +15,11 @@ internal sealed class GeoDanmarkExtract
 
     public async Task StartAsync(Setting setting, CancellationToken cancellationToken)
     {
-        var datasets = ExtractUtil.GetEnabled(setting.GeoDanmark.Datasets);
+        var datasets = ExtractUtil
+            .GetEnabled(setting.GeoDanmark.Datasets)
+            .ToList()
+            .AsReadOnly();
+
         if (!datasets.Any())
         {
             _logger.LogInformation(
