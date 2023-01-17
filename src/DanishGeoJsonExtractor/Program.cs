@@ -2,6 +2,7 @@
 using DanishGeoJsonExtractor.GeoDanmark;
 using DanishGeoJsonExtractor.Matrikel;
 using DanishGeoJsonExtractor.StedNavn;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
@@ -33,11 +34,17 @@ internal static class Program
 
     private static ServiceProvider BuildServiceProvider()
     {
+        const string APP_SETTINGS_FILE_NAME = "appsettings.json";
+
+        var loggingConfiguration = new ConfigurationBuilder()
+            .AddJsonFile(APP_SETTINGS_FILE_NAME)
+            .Build();
+
         var logger = new LoggerConfiguration()
-            .MinimumLevel.Information()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
             .MinimumLevel.Override("System", LogEventLevel.Warning)
-            .WriteTo.Console()
+            .ReadFrom.Configuration(loggingConfiguration)
+            .Enrich.FromLogContext()
             .CreateLogger();
 
         var settingsJson = JsonDocument.Parse(File.ReadAllText("appsettings.json"))
