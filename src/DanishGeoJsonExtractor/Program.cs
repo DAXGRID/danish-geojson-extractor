@@ -12,18 +12,23 @@ namespace DanishGeoJsonExtractor;
 
 internal static class Program
 {
-    public static async Task Main()
+    public static async Task Main(string[] args)
     {
+        var appSettingsFilePath = "appsettings.json";
+
+        if (args.Length == 1)
+        {
+            appSettingsFilePath = args[0];
+        }
+
         using var cancellationToken = new CancellationTokenSource();
+
+        using var serviceProvider = BuildServiceProvider(appSettingsFilePath);
+        var start = serviceProvider.GetService<StartUp>();
 
         try
         {
-            using var serviceProvider = BuildServiceProvider();
-            var start = serviceProvider.GetService<StartUp>() ??
-                throw new InvalidOperationException(
-                    $"Could find service '{nameof(StartUp)}'.");
-
-            await start.StartAsync(cancellationToken.Token).ConfigureAwait(false);
+            await start!.StartAsync(cancellationToken.Token).ConfigureAwait(false);
         }
         catch (Exception)
         {
@@ -32,12 +37,10 @@ internal static class Program
         }
     }
 
-    private static ServiceProvider BuildServiceProvider()
+    private static ServiceProvider BuildServiceProvider(string appSettingsFilePath)
     {
-        const string APP_SETTINGS_FILE_NAME = "appsettings.json";
-
         var loggingConfiguration = new ConfigurationBuilder()
-            .AddJsonFile(APP_SETTINGS_FILE_NAME)
+            .AddJsonFile(appSettingsFilePath)
             .Build();
 
         var logger = new LoggerConfiguration()
@@ -47,7 +50,7 @@ internal static class Program
             .Enrich.FromLogContext()
             .CreateLogger();
 
-        var settingsJson = JsonDocument.Parse(File.ReadAllText("appsettings.json"))
+        var settingsJson = JsonDocument.Parse(File.ReadAllText(appSettingsFilePath))
             .RootElement.GetProperty("settings").ToString();
 
         var setting = JsonSerializer.Deserialize<Setting>(settingsJson) ??

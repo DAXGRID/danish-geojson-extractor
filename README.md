@@ -6,6 +6,15 @@ Downloads and extracts GeoJSON from a specific set of Danish sources.
 
 Move the `appsettings_copy.json` to the same folder as the program and rename it to `appsettings.json`. Go into the file and enable the data-sources you need.
 
+## Note
+
+By default it looks for the `appsettings.json` file in same folder as the binary file. This can be overwritten by calling the binary file with a full path to the file.
+
+Example:
+
+```sh
+./my_executeable "/home/my_user/appsettings.json"
+```
 
 ## Datafordeler
 
