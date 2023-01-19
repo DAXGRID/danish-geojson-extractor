@@ -4,6 +4,7 @@ using DanishGeoJsonExtractor.Matrikel;
 using DanishGeoJsonExtractor.StedNavn;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
 using System.Text.Json;
@@ -24,15 +25,20 @@ internal static class Program
         using var cancellationToken = new CancellationTokenSource();
 
         using var serviceProvider = BuildServiceProvider(appSettingsFilePath);
+
+        var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
+        var logger = loggerFactory!.CreateLogger(nameof(Program));
+
         var start = serviceProvider.GetService<StartUp>();
 
         try
         {
             await start!.StartAsync(cancellationToken.Token).ConfigureAwait(false);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             cancellationToken.Cancel();
+            logger.LogError("{Exception}", ex);
             throw;
         }
     }

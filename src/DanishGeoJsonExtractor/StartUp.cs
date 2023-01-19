@@ -35,36 +35,28 @@ internal sealed class StartUp
     {
         _logger.LogInformation("Starting GeoJSON extraction.");
 
-        try
-        {
-            _logger.LogInformation(
-                "Starting processing {Name}.", nameof(_setting.Matrikel));
-            await _matrikelExtract
-                .StartAsync(_setting, cancellationToken)
-                .ConfigureAwait(false);
+        _logger.LogInformation(
+            "Starting processing {Name}.", nameof(_setting.Matrikel));
+        await _matrikelExtract
+            .StartAsync(_setting, cancellationToken)
+            .ConfigureAwait(false);
 
-            _logger.LogInformation(
-                "Starting processing {Name}.", nameof(_setting.GeoDanmark));
-            await _geoDanmarkExtract
-                .StartAsync(_setting, cancellationToken)
-                .ConfigureAwait(false);
+        _logger.LogInformation(
+            "Starting processing {Name}.", nameof(_setting.GeoDanmark));
+        await _geoDanmarkExtract
+            .StartAsync(_setting, cancellationToken)
+            .ConfigureAwait(false);
 
-            _logger.LogInformation(
-                "Starting processing {Name}.", nameof(_setting.Dawa));
-            await _dawaExtract
-                .StartAsync(_setting, cancellationToken)
-                .ConfigureAwait(false);
+        _logger.LogInformation(
+            "Starting processing {Name}.", nameof(_setting.Dawa));
+        await _dawaExtract
+            .StartAsync(_setting, cancellationToken)
+            .ConfigureAwait(false);
 
-            _logger.LogInformation(
-                "Starting processing {Name}.", nameof(_setting.StedNavn));
-            await _stedNavnExtract
-                .StartAsync(_setting, cancellationToken)
-                .ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("{Exception}", ex);
-            throw;
-        }
+        _logger.LogInformation(
+            "Starting processing {Name}.", nameof(_setting.StedNavn));
+        await _stedNavnExtract
+            .StartAsync(_setting, cancellationToken)
+            .ConfigureAwait(false);
     }
 }
