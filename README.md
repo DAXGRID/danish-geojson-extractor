@@ -22,11 +22,11 @@ When using data from 'Datafordeleren' it is required to setup the `ftpSetting` i
 
 ### Using Matrikel
 
-When using data from the `matrikel` section you've to subscribe to the predefined dataset named `MatrikelGeometriGaeldendeDKComplete`.
+When using data from the `matrikel` section you've to subscribe to the predefined dataset named `MatrikelGeometriGaeldendeDKComplete_gpkg`.
 
 ### Using GeoDanmark
 
-When using data from the `geoDanmark` section you've to subscribe to the predefined dataset named `GeoDanmark60_GML`.
+When using data from the `geoDanmark` section you've to subscribe to the predefined dataset named `GeoDanmark60_GML321`.
 
 ### Using StedNavn
 
