@@ -100,25 +100,25 @@ internal sealed record Setting
     public string OutDirPath { get; init; }
 
     [JsonPropertyName("matrikel")]
-    public MatrikelSetting Matrikel { get; init; }
+    public MatrikelSetting? Matrikel { get; init; }
 
     [JsonPropertyName("geoDanmark")]
-    public GeoDanmarkSetting GeoDanmark { get; init; }
+    public GeoDanmarkSetting? GeoDanmark { get; init; }
 
     [JsonPropertyName("dawa")]
-    public DawaSetting Dawa { get; init; }
+    public DawaSetting? Dawa { get; init; }
 
     [JsonPropertyName("stedNavn")]
-    public StedNavnSetting StedNavn { get; init; }
+    public StedNavnSetting? StedNavn { get; init; }
 
     [JsonConstructor]
     public Setting(
         FtpSetting ftpSetting,
         string outDirPath,
-        MatrikelSetting matrikel,
-        GeoDanmarkSetting geoDanmark,
-        DawaSetting dawa,
-        StedNavnSetting stedNavn)
+        MatrikelSetting? matrikel,
+        GeoDanmarkSetting? geoDanmark,
+        DawaSetting? dawa,
+        StedNavnSetting? stedNavn)
     {
         FtpSetting = ftpSetting;
         OutDirPath = outDirPath;

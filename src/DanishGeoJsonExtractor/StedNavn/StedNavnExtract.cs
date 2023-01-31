@@ -15,7 +15,7 @@ internal sealed class StedNavnExtract
 
     public async Task StartAsync(Setting setting, CancellationToken cancellationToken)
     {
-        var datasets = ExtractUtil.GetEnabled(setting.StedNavn.Datasets);
+        var datasets = ExtractUtil.GetEnabled(setting.StedNavn!.Datasets);
         if (!datasets.Any())
         {
             _logger.LogInformation(
