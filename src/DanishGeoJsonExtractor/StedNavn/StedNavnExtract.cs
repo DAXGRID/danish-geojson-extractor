@@ -76,14 +76,22 @@ internal sealed class StedNavnExtract
                     Path.Combine(setting.OutDirPath, $"{fileToProcessName}.geojson"));
 
                 _logger.LogInformation(
-                    "Extracting geojson for {FileNameNoExtension}",
+                    "Extracting geojson for {FileNameNoExtension}.",
                     fileToProcessName);
+
+                var extractArguments = GeoJsonExtract.BuildArguments(
+                    fileToProcessName,
+                    $"{fileToProcessName}.gml", null);
+
+                _logger.LogDebug(
+                    "Executing {ExecuteableName} with {Arguments}.",
+                    GeoJsonExtract.ExecuteableName,
+                    extractArguments);
 
                 await GeoJsonExtract
                     .ExtractGeoJson(
                         workingDirectory: setting.OutDirPath,
-                        outFileName: fileToProcessName,
-                        inputFileName: $"{fileToProcessName}.gml",
+                        arguments: extractArguments,
                         cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
             }

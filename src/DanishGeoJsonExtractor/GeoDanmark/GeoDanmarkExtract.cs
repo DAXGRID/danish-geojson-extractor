@@ -27,36 +27,40 @@ internal sealed class GeoDanmarkExtract
             return;
         }
 
-        using var ftpClient = new DataforsyningFtpClient(setting.FtpSetting);
-
         const string remoteRootPath = "/";
         const string folderStartName = "GeoDanmark60_GML";
 
-        var ftpFiles = await ftpClient
-            .DirectoriesInPathAsync(remoteRootPath, cancellationToken)
-            .ConfigureAwait(false);
-
-        var newestDirectory = ExtractUtil.NewestDirectory(folderStartName, ftpFiles);
-
-        var downloads = datasets.Select(dataset =>
+        List<(string remotePath, string localPath)>? downloads = null;
+        using (var ftpClient = new DataforsyningFtpClient(setting.FtpSetting))
         {
-            var remotePath = Path.Combine(
-                remoteRootPath,
-                newestDirectory.name,
-                "Tema",
-                $"{dataset}.zip");
+            var ftpFiles = await ftpClient
+                .DirectoriesInPathAsync(remoteRootPath, cancellationToken)
+                .ConfigureAwait(false);
 
-            var localPath = Path.Combine(setting.OutDirPath, $"{dataset}.zip");
+            var newestDirectory = ExtractUtil.NewestDirectory(folderStartName, ftpFiles);
 
-            return (remotePath: remotePath, localPath: localPath);
-        });
+            downloads = datasets.Select(dataset =>
+            {
+                var remotePath = Path.Combine(
+                    remoteRootPath,
+                    newestDirectory.name,
+                    "Tema",
+                    $"{dataset}.zip");
+
+                var localPath = Path.Combine(setting.OutDirPath, $"{dataset}.zip");
+
+                return (remotePath: remotePath, localPath: localPath);
+            }).ToList();
+        }
 
         foreach (var download in downloads)
         {
             // We use multiple ftp clients because datafordeler might time it out.
+#pragma warning disable CA2000 // Seems like the static analysis thinks this is not being disposed.
             using var localFtpClient = new DataforsyningFtpClient(setting.FtpSetting);
+#pragma warning restore CA2000
 
-            _logger.LogInformation("Starting download {FilePath}", download.remotePath);
+            _logger.LogInformation("Starting download {FilePath}.", download.remotePath);
             await localFtpClient
                 .DownloadFileAsync(
                     download.remotePath,
@@ -77,12 +81,19 @@ internal sealed class GeoDanmarkExtract
             ExtractUtil.DeleteIfExists(
                 Path.Combine(Path.Combine(setting.OutDirPath, $"{fileName}.geojson")));
 
-            _logger.LogInformation("Extracting geojson for {FileName}", fileName);
+            _logger.LogInformation(
+                "Extracting geojson for {FileName}.",
+                fileName);
+
+            var extractArguments = GeoJsonExtract.BuildArguments(fileName, $"{fileName}.gml", null);
+            _logger.LogDebug(
+                "Executing {ExecuteableName} with {Arguments}.",
+                GeoJsonExtract.ExecuteableName, extractArguments);
+
             await GeoJsonExtract
                 .ExtractGeoJson(
                     workingDirectory: setting.OutDirPath,
-                    outFileName: fileName,
-                    inputFileName: $"{fileName}.gml",
+                    arguments: extractArguments,
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 

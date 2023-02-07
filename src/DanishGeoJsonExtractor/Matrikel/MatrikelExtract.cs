@@ -69,12 +69,16 @@ internal sealed class MatrikelExtract
             ExtractUtil.DeleteIfExists(
                 Path.Combine(setting.OutDirPath, dataset, ".geojson"));
 
+            var extractArguments = GeoJsonExtract.BuildArguments(dataset, extractedFile, dataset);
+            _logger.LogDebug(
+                "Executing {ExecuteableName} with {Arguments}.",
+                GeoJsonExtract.ExecuteableName,
+                extractArguments);
+
             await GeoJsonExtract
                 .ExtractGeoJson(
                     workingDirectory: setting.OutDirPath,
-                    outFileName: dataset,
-                    inputFileName: extractedFile,
-                    layerNames: dataset,
+                    arguments: extractArguments,
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
         }
