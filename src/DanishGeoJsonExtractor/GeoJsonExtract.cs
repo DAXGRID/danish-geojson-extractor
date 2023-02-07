@@ -25,7 +25,7 @@ internal static class GeoJsonExtract
         string inputFileName,
         string? layerNames = null)
     {
-        return $"-f GeoJSON {outFileName}.geojson {inputFileName} {layerNames}";
+        return $"-f GeoJSON \"{outFileName}.geojson\" \"{inputFileName}\" {layerNames}";
     }
 
     public static async Task ExtractGeoJson(
