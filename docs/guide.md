@@ -16,6 +16,8 @@ These are the currently required predefined datasets.
 
 2. Create new user
 
+The picture shows an already created used, do not worry if it does not look exactly the same as the picture.
+
 ![Create new user.](/docs/1_new_user.png)
 
 3. Create new user with username and password
