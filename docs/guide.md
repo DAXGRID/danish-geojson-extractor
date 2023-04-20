@@ -18,12 +18,12 @@ Go to this page and login [datafordeler](https://selfservice.datafordeler.dk/hom
 
 2. Create new user
 
-The picture shows an already created user, do not worry if it does not look exactly the same as the picture.
+The picture shows an already created usej, do not worry if it does not look exactly the same as the picture.
 ![Create new user.](/docs/1_new_user.png)
 
 3. Create new user with username and password
 
-__Remember to insert a password and save it.__
+__Remember to insert a password and save it, after it has been created.__
 
 ![Create user.](/docs/2_create_user.png)
 
