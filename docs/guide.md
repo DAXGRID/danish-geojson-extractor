@@ -4,11 +4,13 @@ This guide shows how to setup the required predefined data-sets.
 
 These are the currently required predefined datasets.
 
-* MatrikelGeometriGaeldendeDKComplete_gpkg
-* GeoDanmark60_GML321
-* DKstednavneBearbejdedeNohist_GML321
+* __MatrikelGeometriGaeldendeDKComplete_gpkg__
+* __GeoDanmark60_GML321__
+* __DKstednavneBearbejdedeNohist_GML321__
 
 ## Step by step guide
+
+Go to this page and login [datafordeler](https://selfservice.datafordeler.dk/home).
 
 1. Go to users page.
 
@@ -17,7 +19,6 @@ These are the currently required predefined datasets.
 2. Create new user
 
 The picture shows an already created used, do not worry if it does not look exactly the same as the picture.
-
 ![Create new user.](/docs/1_new_user.png)
 
 3. Create new user with username and password
