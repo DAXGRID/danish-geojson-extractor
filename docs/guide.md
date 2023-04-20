@@ -35,7 +35,9 @@ __Remember to insert a password and save it, after it has been created.__
 
 ![Click on predefined.](/docs/4_click_on_predefined.png)
 
-6. Select the data-set
+6. Select the data-set.
+
+You can always search using the names described at the top of the document.
 
 ![Create user.](/docs/5_select_predefined.png)
 
