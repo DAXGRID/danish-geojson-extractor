@@ -20,6 +20,8 @@ Example:
 
 When using data from 'Datafordeleren' it is required to setup the `ftpSetting` in the `appsettings.json` file. The setup is done on the website [datafordeler.dk](https://datafordeler.dk/). The setup of the specific datasets unique to 'Datafordeleren' is described in the sections below.
 
+This guide shows how to setup "datafordeler" predefined datasets [link.](/docs/guide.md)
+
 ### Using Matrikel
 
 When using data from the `matrikel` section you've to subscribe to the predefined dataset named `MatrikelGeometriGaeldendeDKComplete_gpkg`.
