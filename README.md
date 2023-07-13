@@ -37,3 +37,17 @@ When using data from the `stedNavn` section you've to subscribe to the predefine
 ## Dependencies
 
 Has dependency on GDAL (ogr2ogr), it is required to be in the shell path.
+
+## Release build
+
+Publish for Linux.
+
+```sh
+dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained false -o ./build
+```
+
+Publish for Windows.
+
+```sh
+dotnet publish -r win-x64 -p:PublishSingleFile=true --self-contained false -o ./build
+```
