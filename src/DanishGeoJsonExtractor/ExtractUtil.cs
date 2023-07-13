@@ -12,7 +12,7 @@ internal static class ExtractUtil
             .Where(x => x.name.StartsWith(folderStartName,
                                           true,
                                           CultureInfo.InvariantCulture))
-            .OrderBy(x => x.created)
+            .OrderByDescending(x => x.created)
             .First();
     }
 
