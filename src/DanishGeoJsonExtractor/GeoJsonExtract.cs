@@ -63,7 +63,7 @@ internal static class GeoJsonExtract
                 .ReadToEndAsync()
                 .ConfigureAwait(false);
 
-            throw new GeoJsonExtractProcessCouldNotBeStartedException($"{errorMessage}");
+            throw new GeoJsonExtractProcessCouldNotBeStartedException(errorMessage);
         }
     }
 }
