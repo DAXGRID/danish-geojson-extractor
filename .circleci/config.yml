@@ -32,7 +32,7 @@ jobs:
           command: dotnet test
 
 workflows:
-  build-test-upload_image:
+  build-test:
     jobs:
       - build-app:
           filters:
