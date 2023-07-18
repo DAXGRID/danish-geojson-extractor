@@ -8,13 +8,6 @@ executors:
         username: $DOCKER_LOGIN
         password: $DOCKER_ACCESSTOKEN
 
-  dotnet-core-sdk-and-mssql-service:
-    docker:
-    - image: mcr.microsoft.com/dotnet/sdk:6.0
-      auth:
-        username: $DOCKER_LOGIN
-        password: $DOCKER_ACCESSTOKEN
-
 jobs:
   build-app:
     executor: dotnet-core-sdk
@@ -24,7 +17,7 @@ jobs:
           name: Build
           command: dotnet build -c Release
   test-app:
-    executor: dotnet-core-sdk-and-mssql-service
+    executor: dotnet-core-sdk
     steps:
       - checkout
       - run:
