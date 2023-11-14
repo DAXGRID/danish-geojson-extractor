@@ -61,8 +61,11 @@ internal sealed record FtpSetting
     [JsonPropertyName("password")]
     public string Password { get; init; }
 
+    [JsonPropertyName("connectionTimeOutSeconds")]
+    public int ConnectionTimeOutSeconds { get; init; }
+
     [JsonConstructor]
-    public FtpSetting(string host, string username, string password)
+    public FtpSetting(string host, string username, string password, int connectionTimeOutSeconds = 60)
     {
         if (string.IsNullOrWhiteSpace(host))
         {
@@ -88,6 +91,7 @@ internal sealed record FtpSetting
         Host = host;
         Username = username;
         Password = password;
+        ConnectionTimeOutSeconds = connectionTimeOutSeconds;
     }
 }
 
