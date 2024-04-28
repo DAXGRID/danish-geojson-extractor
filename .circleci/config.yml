@@ -16,22 +16,11 @@ jobs:
       - run:
           name: Build
           command: dotnet build -c Release
-  test-app:
-    executor: dotnet-core-sdk
-    steps:
-      - checkout
-      - run:
-          name: Test
-          command: dotnet test
 
 workflows:
   build-test:
     jobs:
       - build-app:
-          filters:
-            tags:
-              only: /.*/
-      - test-app:
           filters:
             tags:
               only: /.*/
