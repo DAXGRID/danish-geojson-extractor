@@ -60,7 +60,7 @@ internal static class GeoJsonExtract
         if (proc.ExitCode != 0)
         {
             var errorMessage = await proc.StandardError
-                .ReadToEndAsync()
+                .ReadToEndAsync(cancellationToken)
                 .ConfigureAwait(false);
 
             throw new GeoJsonExtractProcessCouldNotBeStartedException(errorMessage);
