@@ -4,7 +4,7 @@ namespace DanishGeoJsonExtractor;
 
 internal static class ExtractUtil
 {
-    public static (string name, DateTime created) NewestDirectory(
+    public static (string name, DateTime created)? NewestDirectory(
         string folderStartName,
         IEnumerable<(string name, DateTime created)> ftpFiles)
     {
@@ -13,7 +13,7 @@ internal static class ExtractUtil
                                           true,
                                           CultureInfo.InvariantCulture))
             .OrderByDescending(x => x.created)
-            .First();
+            .FirstOrDefault();
     }
 
     public static (string name, DateTime created) NewestFile(

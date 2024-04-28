@@ -20,7 +20,7 @@ internal sealed class GeoDanmarkExtract
             .ToList()
             .AsReadOnly();
 
-        if (!datasets.Any())
+        if (datasets.Count == 0)
         {
             _logger.LogInformation(
                 "No datasets enabled for GeoDanmark, so skips extraction.");
@@ -38,12 +38,17 @@ internal sealed class GeoDanmarkExtract
                 .ConfigureAwait(false);
 
             var newestDirectory = ExtractUtil.NewestDirectory(folderStartName, ftpFiles);
+            if (newestDirectory is null)
+            {
+                throw new FtpDirectoryNotFoundException(
+                    $"The directory {folderStartName} does not exist on the FTP server.");
+            }
 
             downloads = datasets.Select(dataset =>
             {
                 var remotePath = Path.Combine(
                     remoteRootPath,
-                    newestDirectory.name,
+                    newestDirectory.Value.name,
                     "Tema",
                     $"{dataset}.zip");
 

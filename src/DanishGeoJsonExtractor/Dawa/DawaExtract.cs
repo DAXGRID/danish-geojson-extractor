@@ -76,7 +76,7 @@ internal sealed class DawaExtract
             .AsReadOnly();
 
         // If none is enabled we just return since there is nothing to process.
-        if (!datasets.Any())
+        if (datasets.Count == 0)
         {
             _logger.LogInformation("No datasets enabled for Dawa, so skips extraction.");
             return;

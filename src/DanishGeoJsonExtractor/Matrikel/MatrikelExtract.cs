@@ -23,7 +23,7 @@ internal sealed class MatrikelExtract
             .AsReadOnly();
 
         // If none is enabled we just return since there is nothing to process.
-        if (!datasets.Any())
+        if (datasets.Count == 0)
         {
             _logger.LogInformation("Skipping, no datasets enabled for Matrikel");
             return;
@@ -41,13 +41,18 @@ internal sealed class MatrikelExtract
             .ConfigureAwait(false);
 
         var newestFolder = ExtractUtil.NewestDirectory(folderStartName, ftpFiles);
+        if (newestFolder is null)
+        {
+            throw new FtpDirectoryNotFoundException(
+                $"The directory {folderStartName} does not exist on the FTP server.");
+        }
 
         var zipFileOutputPath = Path.Combine(setting.OutDirPath, fileName);
 
         _logger.LogInformation("Starting downloading matrikel data.");
         await ftpClient
             .DownloadFileAsync(
-                remotePath: Path.Combine(newestFolder.name, fileName),
+                remotePath: Path.Combine(newestFolder.Value.name, fileName),
                 localPath: zipFileOutputPath,
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);
