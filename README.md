@@ -28,7 +28,7 @@ When using data from the `matrikel` section you've to subscribe to the predefine
 
 ### Using GeoDanmark
 
-When using data from the `geoDanmark` section you've to subscribe to the predefined dataset named `GeoDanmark60_GML321`.
+When using data from the `geoDanmark` section you've to subscribe to the predefined dataset named `GeoDanmark60_GML_HF`.
 
 ### Using StedNavn
 

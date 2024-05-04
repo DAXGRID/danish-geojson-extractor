@@ -28,7 +28,7 @@ internal sealed class GeoDanmarkExtract
         }
 
         const string remoteRootPath = "/";
-        const string folderStartName = "GeoDanmark60_GML";
+        const string folderStartName = "GeoDanmark60_GML_HF";
 
         List<(string remotePath, string localPath)>? downloads = null;
         using (var ftpClient = new DataforsyningFtpClient(setting.FtpSetting))

@@ -5,8 +5,8 @@ This guide shows how to setup the required predefined data-sets.
 These are the currently required predefined datasets.
 
 * __MatrikelGeometriGaeldendeDKComplete_gpkg__
-* __GeoDanmark60_GML321__
 * __DKstednavneBearbejdedeNohist_GML321__
+* __GeoDanmark60_GML_HF__
 
 ## Step by step guide
 
