@@ -30,9 +30,9 @@ internal sealed class MatrikelExtract
         }
 
         const string remoteRootPath = "/";
-        const string folderStartName = "MatrikelGeometriGaeldendeDKComplete_gpkg";
-        const string fileName = "MatrikelGeometriGaeldendeDKComplete.zip";
-        const string outputFileName = "MatrikelGeometriGaeldendeDKComplete.gpkg";
+        const string folderStartName = "MAT_Kortdata_Gaeldende_DK_Complete_GPKG_";
+        const string fileName = "GPKG.zip";
+        const string outputFileName = "MATkortdataGaeldendeDKComplete.gpkg";
 
         using var ftpClient = new DataforsyningFtpClient(setting.FtpSetting);
 
