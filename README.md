@@ -24,7 +24,7 @@ This guide shows how to setup "datafordeler" predefined datasets [link.](/docs/g
 
 ### Using Matrikel
 
-When using data from the `matrikel` section you've to subscribe to the predefined dataset named `MatrikelGeometriGaeldendeDKComplete_gpkg`.
+When using data from the `matrikel` section you've to subscribe to the predefined dataset named `MAT Kortdata Gældende DK Complete GPKG`.
 
 ### Using GeoDanmark
 
