@@ -51,7 +51,7 @@ internal sealed class MatrikelExtract
 
         _logger.LogInformation("Starting downloading matrikel data.");
         await ftpClient
-            .DownloadFileAsync(
+            .RetryDownloadFileAsync(
                 remotePath: Path.Combine(newestFolder.Value.name, fileName),
                 localPath: zipFileOutputPath,
                 cancellationToken: cancellationToken)

@@ -67,7 +67,7 @@ internal sealed class GeoDanmarkExtract
 
             _logger.LogInformation("Starting download {FilePath}.", download.remotePath);
             await localFtpClient
-                .DownloadFileAsync(
+                .RetryDownloadFileAsync(
                     download.remotePath,
                     download.localPath,
                     cancellationToken)

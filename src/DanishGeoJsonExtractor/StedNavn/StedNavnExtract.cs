@@ -45,7 +45,7 @@ internal sealed class StedNavnExtract
 
         _logger.LogInformation("Starting download {FilePath}", remotePath);
         await localFtpClient
-            .DownloadFileAsync(
+            .RetryDownloadFileAsync(
                 remotePath,
                 localPath,
                 cancellationToken)
