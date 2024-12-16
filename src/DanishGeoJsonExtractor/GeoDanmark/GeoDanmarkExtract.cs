@@ -31,7 +31,7 @@ internal sealed class GeoDanmarkExtract
         const string folderStartName = "GeoDanmark60_GML_HF";
 
         List<(string remotePath, string localPath)>? downloads = null;
-        using (var ftpClient = new DataforsyningFtpClient(setting.FtpSetting))
+        using (var ftpClient = new DataforsyningFtpClient(setting.FtpSetting, _logger))
         {
             var ftpFiles = await ftpClient
                 .DirectoriesInPathAsync(remoteRootPath, cancellationToken)
@@ -62,7 +62,7 @@ internal sealed class GeoDanmarkExtract
         {
             // We use multiple ftp clients because datafordeler might time it out.
 #pragma warning disable CA2000 // Seems like the static analysis thinks this is not being disposed.
-            using var localFtpClient = new DataforsyningFtpClient(setting.FtpSetting);
+            using var localFtpClient = new DataforsyningFtpClient(setting.FtpSetting, _logger);
 #pragma warning restore CA2000
 
             _logger.LogInformation("Starting download {FilePath}.", download.remotePath);

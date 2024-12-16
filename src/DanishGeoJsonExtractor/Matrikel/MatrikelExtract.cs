@@ -34,7 +34,7 @@ internal sealed class MatrikelExtract
         const string fileName = "GPKG.zip";
         const string outputFileName = "MATkortdataGaeldendeDKComplete.gpkg";
 
-        using var ftpClient = new DataforsyningFtpClient(setting.FtpSetting);
+        using var ftpClient = new DataforsyningFtpClient(setting.FtpSetting, _logger);
 
         var ftpFiles = await ftpClient
             .DirectoriesInPathAsync(remoteRootPath, cancellationToken)

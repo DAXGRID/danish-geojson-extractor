@@ -1,4 +1,6 @@
 using FluentFTP;
+using FluentFTP.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace DanishGeoJsonExtractor.Dataforsyning;
 
@@ -6,7 +8,7 @@ internal sealed class DataforsyningFtpClient : IDisposable
 {
     private readonly AsyncFtpClient _client;
 
-    public DataforsyningFtpClient(FtpSetting ftpSetting)
+    public DataforsyningFtpClient(FtpSetting ftpSetting, ILogger logger)
     {
         _client = new AsyncFtpClient(
             ftpSetting.Host,
@@ -15,6 +17,11 @@ internal sealed class DataforsyningFtpClient : IDisposable
 
         // Should be converted to milliseconds.
         _client.Config.ConnectTimeout = ftpSetting.ConnectionTimeOutSeconds * 1000;
+        if (ftpSetting.EnableLogging)
+        {
+            _client.Config.LogToConsole = false;
+            _client.Logger = new FtpLogAdapter(logger);
+        }
     }
 
     public async Task<IEnumerable<(string name, DateTime created)>> FilesInPathAsync(

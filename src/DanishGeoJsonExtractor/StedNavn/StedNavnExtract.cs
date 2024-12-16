@@ -23,7 +23,7 @@ internal sealed class StedNavnExtract
             return;
         }
 
-        using var ftpClient = new DataforsyningFtpClient(setting.FtpSetting);
+        using var ftpClient = new DataforsyningFtpClient(setting.FtpSetting, _logger);
 
         const string remoteRootPath = "/";
         const string fileNamePrefix = "DKstednavneBearbejdedeNohist_GML321";
@@ -41,7 +41,7 @@ internal sealed class StedNavnExtract
         var localPath = Path.Combine(setting.OutDirPath, newestFile.name);
 
         // We use multiple ftp clients because datafordeler might time it out.
-        using var localFtpClient = new DataforsyningFtpClient(setting.FtpSetting);
+        using var localFtpClient = new DataforsyningFtpClient(setting.FtpSetting, _logger);
 
         _logger.LogInformation("Starting download {FilePath}", remotePath);
         await localFtpClient
