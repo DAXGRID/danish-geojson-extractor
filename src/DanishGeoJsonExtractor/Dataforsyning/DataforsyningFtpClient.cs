@@ -13,7 +13,7 @@ internal sealed class DataforsyningFtpClient : IDisposable
             ftpSetting.Username,
             ftpSetting.Password);
 
-        _client.Config.ConnectTimeout = ftpSetting.ConnectionTimeOutSeconds;
+        _client.Config.ConnectTimeout = ftpSetting.ConnectionTimeOutSeconds * 1000;
     }
 
     public async Task<IEnumerable<(string name, DateTime created)>> FilesInPathAsync(
