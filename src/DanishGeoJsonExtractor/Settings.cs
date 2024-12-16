@@ -67,6 +67,12 @@ internal sealed record FtpSetting
     [JsonPropertyName("enableLogging")]
     public bool EnableLogging { get; init; } = true;
 
+    [JsonPropertyName("retryAttempts")]
+    public int RetryAttempts { get; init; } = 10;
+
+    [JsonPropertyName("readTimeoutSeconds")]
+    public int ReadTimeoutSeconds { get; init; } = 120;
+
     [JsonConstructor]
     public FtpSetting(string host, string username, string password, int connectionTimeOutSeconds = 60)
     {

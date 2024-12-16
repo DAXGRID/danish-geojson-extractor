@@ -22,6 +22,9 @@ internal sealed class DataforsyningFtpClient : IDisposable
             _client.Config.LogToConsole = false;
             _client.Logger = new FtpLogAdapter(logger);
         }
+
+        _client.Config.RetryAttempts = ftpSetting.RetryAttempts;
+        _client.Config.ReadTimeout = ftpSetting.ReadTimeoutSeconds * 1000;
     }
 
     public async Task<IEnumerable<(string name, DateTime created)>> FilesInPathAsync(
