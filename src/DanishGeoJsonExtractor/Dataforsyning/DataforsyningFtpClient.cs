@@ -83,14 +83,17 @@ internal sealed class DataforsyningFtpClient : IDisposable
                 // First time we overwrite, otherwise we resume in case of a timeout.
                 if (retries == 0)
                 {
+                    _logger.LogInformation("Downloading file {RemoteFilePath}.", remotePath);
                     await DownloadFileAsync(remotePath, localPath, FtpLocalExists.Overwrite, FtpVerify.Retry, cancellationToken).ConfigureAwait(false);
-                    break;
                 }
                 else
                 {
-                    _logger.LogInformation("Retrying downloading file.");
+                    _logger.LogInformation("Retrying downloading file {RemoteFilePath}.", remotePath);
                     await DownloadFileAsync(remotePath, localPath, FtpLocalExists.Resume, FtpVerify.Retry, cancellationToken).ConfigureAwait(false);
                 }
+
+                // If we get to this point it means that the download has finished.
+                break;
             }
             catch (FtpException ex)
             {
