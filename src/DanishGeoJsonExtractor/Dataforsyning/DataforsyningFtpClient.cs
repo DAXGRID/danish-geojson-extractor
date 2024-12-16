@@ -13,6 +13,7 @@ internal sealed class DataforsyningFtpClient : IDisposable
             ftpSetting.Username,
             ftpSetting.Password);
 
+        // Should be converted to milliseconds.
         _client.Config.ConnectTimeout = ftpSetting.ConnectionTimeOutSeconds * 1000;
     }
 
