@@ -9,6 +9,7 @@ internal sealed class DataforsyningFtpClient : IDisposable
 {
     private readonly AsyncFtpClient _client;
     private readonly ILogger _logger;
+    private bool _isDisposed;
 
     public DataforsyningFtpClient(FtpSetting ftpSetting, ILogger logger)
     {
@@ -143,6 +144,10 @@ internal sealed class DataforsyningFtpClient : IDisposable
 
     public void Dispose()
     {
-        _client.Dispose();
+        if (!_isDisposed)
+        {
+            _client.Dispose();
+            _isDisposed = true;
+        }
     }
 }
