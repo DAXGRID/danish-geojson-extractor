@@ -2,14 +2,14 @@ using System.Diagnostics;
 
 namespace DanishGeoJsonExtractor;
 
-public class GeoJsonExtractFailedException : Exception
+internal sealed class GeoJsonExtractFailedException : Exception
 {
     public GeoJsonExtractFailedException() { }
     public GeoJsonExtractFailedException(string message) { }
     public GeoJsonExtractFailedException(string message, Exception innerException) { }
 }
 
-public class GeoJsonExtractProcessCouldNotBeStartedException : Exception
+internal sealed class GeoJsonExtractProcessCouldNotBeStartedException : Exception
 {
     public GeoJsonExtractProcessCouldNotBeStartedException() { }
     public GeoJsonExtractProcessCouldNotBeStartedException(string message) { }

@@ -1,6 +1,6 @@
 namespace DanishGeoJsonExtractor;
 
-public sealed class FtpDirectoryNotFoundException : Exception
+internal sealed class FtpDirectoryNotFoundException : Exception
 {
     public FtpDirectoryNotFoundException() { }
     public FtpDirectoryNotFoundException(string message) { }
