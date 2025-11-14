@@ -9,3 +9,6 @@ dotnet_diagnostic.CA1848.severity = none
 # CA1812: We remove this since we mainly use dependency injection,
 # so a lot of classes might seem that they have not been instantiated.
 dotnet_diagnostic.CA1812.severity = none
+
+# CA1064: We want them to be internal sealed.
+dotnet_diagnostic.CA1064.severity = none
