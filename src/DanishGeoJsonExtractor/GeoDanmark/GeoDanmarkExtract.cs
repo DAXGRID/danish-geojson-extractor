@@ -38,8 +38,12 @@ internal sealed class GeoDanmarkExtract
                 .ConfigureAwait(false);
 
             var newestDirectory = ExtractUtil.NewestDirectory(folderStartName, ftpFiles);
-            if (newestDirectory is null)
+            if (newestDirectory?.name is null)
             {
+                _logger.LogError(
+                    "Could not find the folder: {FolderName} on datafordeleren.",
+                    folderStartName);
+
                 throw new FtpDirectoryNotFoundException(
                     $"The directory {folderStartName} does not exist on the FTP server.");
             }
