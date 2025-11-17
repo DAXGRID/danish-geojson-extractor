@@ -96,20 +96,6 @@ internal sealed class DataforsyningFtpClient : IDisposable
                 // If we get to this point it means that the download has finished.
                 break;
             }
-            catch (TimeoutException ex)
-            {
-                _logger.LogWarning("Timeout reading from the FTP server: {Exception}. Current number of retries {Retries}.", ex, retries);
-
-                retries++;
-
-                if (retries >= maxRetries)
-                {
-                    _logger.LogCritical("Reached the maximum amount of retries. {MaxRetries}.", maxRetries);
-                    throw;
-                }
-
-                await Task.Delay(timeoutMs, cancellationToken).ConfigureAwait(false);
-            }
             catch (FtpException ex)
             {
                 if (ex.InnerException is TimeoutException)
@@ -130,6 +116,20 @@ internal sealed class DataforsyningFtpClient : IDisposable
                 {
                     throw;
                 }
+            }
+            catch (TimeoutException ex)
+            {
+                _logger.LogWarning("Timeout reading from the FTP server: {Exception}. Current number of retries {Retries}.", ex, retries);
+
+                retries++;
+
+                if (retries >= maxRetries)
+                {
+                    _logger.LogCritical("Reached the maximum amount of retries. {MaxRetries}.", maxRetries);
+                    throw;
+                }
+
+                await Task.Delay(timeoutMs, cancellationToken).ConfigureAwait(false);
             }
         }
     }
