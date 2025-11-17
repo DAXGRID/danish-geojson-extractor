@@ -41,8 +41,12 @@ internal sealed class MatrikelExtract
             .ConfigureAwait(false);
 
         var newestFolder = ExtractUtil.NewestDirectory(folderStartName, ftpFiles);
-        if (newestFolder is null)
+        if (newestFolder?.name is null)
         {
+            _logger.LogError(
+                "The directory {FolderStartName} does not exist on the FTP server.",
+                folderStartName);
+
             throw new FtpDirectoryNotFoundException(
                 $"The directory {folderStartName} does not exist on the FTP server.");
         }

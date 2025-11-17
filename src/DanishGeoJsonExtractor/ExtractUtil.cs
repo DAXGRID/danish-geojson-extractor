@@ -16,7 +16,7 @@ internal static class ExtractUtil
             .FirstOrDefault();
     }
 
-    public static (string name, DateTime created) NewestFile(
+    public static (string name, DateTime created)? NewestFile(
         string fileName,
         IEnumerable<(string name, DateTime created)> ftpFiles)
     {
@@ -25,7 +25,7 @@ internal static class ExtractUtil
                                           true,
                                           CultureInfo.InvariantCulture))
             .OrderBy(x => x.created)
-            .First();
+            .FirstOrDefault();
     }
 
     public static void DeleteIfExists(string filePath)

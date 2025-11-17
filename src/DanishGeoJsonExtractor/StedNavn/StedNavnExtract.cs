@@ -33,12 +33,21 @@ internal sealed class StedNavnExtract
             .ConfigureAwait(true);
 
         var newestFile = ExtractUtil.NewestFile(fileNamePrefix, ftpFiles);
+        if (newestFile?.name is null)
+        {
+            _logger.LogError(
+                "Could not find any files with file name prefix {FileNamePrefix} on datafordeleren.",
+                fileNamePrefix);
+
+            throw new FtpFileMissingException(
+                $"Could not find any files with file name prefix {fileNamePrefix} on the FTP server.");
+        }
 
         var remotePath = Path.Combine(
             remoteRootPath,
-            newestFile.name);
+            newestFile.Value.name);
 
-        var localPath = Path.Combine(setting.OutDirPath, newestFile.name);
+        var localPath = Path.Combine(setting.OutDirPath, newestFile.Value.name);
 
         // We use multiple ftp clients because datafordeler might time it out.
         using var localFtpClient = new DataforsyningFtpClient(setting.FtpSetting, _logger);
