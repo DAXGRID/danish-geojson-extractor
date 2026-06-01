@@ -81,7 +81,7 @@ internal sealed class GeoDanmarkExtract
                 setting.OutDirPath,
                 Path.GetFileName(download.remotePath));
 
-            ZipFile.ExtractToDirectory(zipFileOutputPath, setting.OutDirPath, true);
+            await ZipFile.ExtractToDirectoryAsync(zipFileOutputPath, setting.OutDirPath, true, cancellationToken).ConfigureAwait(false);
             File.Delete(zipFileOutputPath);
 
             var fileName = Path.GetFileNameWithoutExtension(download.remotePath);

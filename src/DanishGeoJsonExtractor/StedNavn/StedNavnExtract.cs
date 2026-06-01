@@ -64,7 +64,7 @@ internal sealed class StedNavnExtract
             setting.OutDirPath,
             Path.GetFileName(remotePath));
 
-        ZipFile.ExtractToDirectory(zipFileOutputPath, setting.OutDirPath, true);
+        await ZipFile.ExtractToDirectoryAsync(zipFileOutputPath, setting.OutDirPath, true, cancellationToken).ConfigureAwait(false);
 
         // Cleanup zip file and metadata file
         ExtractUtil.DeleteIfExists(zipFileOutputPath);

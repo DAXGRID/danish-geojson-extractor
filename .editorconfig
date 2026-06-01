@@ -12,3 +12,6 @@ dotnet_diagnostic.CA1812.severity = none
 
 # CA1064: We want them to be internal sealed.
 dotnet_diagnostic.CA1064.severity = none
+
+# CA1873: We won't disable logging.
+dotnet_diagnostic.CA1873.severity = none

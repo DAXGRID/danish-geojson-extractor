@@ -62,7 +62,7 @@ internal sealed class MatrikelExtract
             .ConfigureAwait(false);
 
         _logger.LogInformation("Extracting matrikel to output folder.");
-        ZipFile.ExtractToDirectory(zipFileOutputPath, setting.OutDirPath, true);
+        await ZipFile.ExtractToDirectoryAsync(zipFileOutputPath, setting.OutDirPath, true, cancellationToken).ConfigureAwait(false);
 
         ExtractUtil.DeleteIfExists(zipFileOutputPath);
 
