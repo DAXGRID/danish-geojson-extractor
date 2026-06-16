@@ -1,3 +1,4 @@
+using DanishGeoJsonExtractor.Datafordeleren;
 using DanishGeoJsonExtractor.Dataforsyning;
 using Microsoft.Extensions.Logging;
 using System.IO.Compression;
@@ -7,10 +8,12 @@ namespace DanishGeoJsonExtractor.Matrikel;
 internal sealed class MatrikelExtract
 {
     private readonly ILogger<MatrikelExtract> _logger;
+    private readonly DatafordelerFileDownload _datafordelerFileDownload;
 
-    public MatrikelExtract(ILogger<MatrikelExtract> logger)
+    public MatrikelExtract(DatafordelerFileDownload datafordelerFileDownload, ILogger<MatrikelExtract> logger)
     {
         _logger = logger;
+        _datafordelerFileDownload = datafordelerFileDownload;
     }
 
     public async Task StartAsync(
@@ -29,50 +32,22 @@ internal sealed class MatrikelExtract
             return;
         }
 
-        const string remoteRootPath = "/";
-        const string folderStartName = "MAT_Kortdata_Gaeldende_DK_Complete_GPKG_";
-        const string fileName = "GPKG.zip";
-        const string outputFileName = "MATkortdataGaeldendeDKComplete.gpkg";
-
-        using var ftpClient = new DataforsyningFtpClient(setting.FtpSetting, _logger);
-
-        var ftpFiles = await ftpClient
-            .DirectoriesInPathAsync(remoteRootPath, cancellationToken)
-            .ConfigureAwait(false);
-
-        var newestFolder = ExtractUtil.NewestDirectory(folderStartName, ftpFiles);
-        if (newestFolder?.name is null)
-        {
-            _logger.LogError(
-                "The directory {FolderStartName} does not exist on the FTP server.",
-                folderStartName);
-
-            throw new FtpDirectoryNotFoundException(
-                $"The directory {folderStartName} does not exist on the FTP server.");
-        }
-
-        var zipFileOutputPath = Path.Combine(setting.OutDirPath, fileName);
-
-        _logger.LogInformation("Starting downloading matrikel data.");
-        await ftpClient
-            .RetryDownloadFileAsync(
-                remotePath: Path.Combine(newestFolder.Value.name, fileName),
-                localPath: zipFileOutputPath,
-                cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-
-        _logger.LogInformation("Extracting matrikel to output folder.");
-        await ZipFile.ExtractToDirectoryAsync(zipFileOutputPath, setting.OutDirPath, true, cancellationToken).ConfigureAwait(false);
-
-        ExtractUtil.DeleteIfExists(zipFileOutputPath);
-
-        var extractedFile = Path.Combine(
-            setting.OutDirPath,
-            outputFileName);
-
         foreach (var dataset in datasets)
         {
-            _logger.LogInformation("Processing {Name}", dataset);
+            _logger.LogInformation("Starting {Name}.", dataset);
+            var zipFileOutputPath = await _datafordelerFileDownload.DownloadAsync("MAT", dataset, "gpkg", setting.OutDirPath, cancellationToken).ConfigureAwait(false);
+            _logger.LogInformation("Downloading {Name} to {OutputFileName}.", dataset, zipFileOutputPath);
+
+            _logger.LogInformation("Extracting {Name} to output folder.", zipFileOutputPath);
+            await ZipFile.ExtractToDirectoryAsync(zipFileOutputPath, setting.OutDirPath, true, cancellationToken).ConfigureAwait(false);
+
+            ExtractUtil.DeleteIfExists(zipFileOutputPath);
+
+            var extractedFile = Path.Combine(
+                setting.OutDirPath,
+                $"{Path.GetFileNameWithoutExtension(zipFileOutputPath)}.gpkg");
+
+            _logger.LogInformation("Started processing {Name}", dataset);
 
             // Cleanup last extracted geojson file if it exists.
             ExtractUtil.DeleteIfExists(
@@ -90,9 +65,8 @@ internal sealed class MatrikelExtract
                     arguments: extractArguments,
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
-        }
 
-        // Delete output from zip, it is no longer needed.
-        ExtractUtil.DeleteIfExists(extractedFile);
+            _logger.LogInformation("Finished processing {Name}", dataset);
+        }
     }
 }
