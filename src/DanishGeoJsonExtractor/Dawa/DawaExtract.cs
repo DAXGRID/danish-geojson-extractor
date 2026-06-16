@@ -89,17 +89,14 @@ internal sealed class DawaExtract
         const string namedRoadMunicipalDistrictOutputName = "navngivenvejkommunedel";
 
         using var httpClient = new HttpClient();
-        var client = new DawaClient(httpClient);
-        var tId = await client
-            .GetLatestTransactionAsync(cancellationToken)
-            .ConfigureAwait(false);
+        using var client = new DatafordelerClient(httpClient, setting.DatafordelerApiKey);
 
         if (datasets.Contains(accessAddressOutputName))
         {
             _logger.LogInformation("Starting processing {Name}", accessAddressOutputName);
 
             var accessAddressesEnumerable = client
-                .GetAllAccessAddresses(tId.Id, cancellationToken);
+                .GetAllAccessAddressesAsync(new HashSet<DawaStatus> { DawaStatus.Active, DawaStatus.Pending }, cancellationToken);
 
             await MakeGeoJsonFile<DawaAccessAddress>(
                 setting.OutDirPath,
@@ -113,7 +110,7 @@ internal sealed class DawaExtract
             _logger.LogInformation("Starting processing {Name}", unitAddressOutputName);
 
             var unitAddressEnumerable = client
-                .GetAllUnitAddresses(tId.Id, cancellationToken);
+                .GetAllUnitAddressesAsync(new HashSet<DawaStatus> { DawaStatus.Active, DawaStatus.Pending }, cancellationToken);
 
             await MakeGeoJsonFile<DawaUnitAddress>(
                 setting.OutDirPath,
@@ -127,7 +124,7 @@ internal sealed class DawaExtract
             _logger.LogInformation("Starting processing {Name}", roadOutputName);
 
             var roadEnumerable = client
-                .GetAllRoadsAsync(tId.Id, cancellationToken);
+                .GetAllRoadsAsync(new HashSet<DawaRoadStatus> { DawaRoadStatus.Effective, DawaRoadStatus.Temporary }, cancellationToken);
 
             await MakeGeoJsonFile<DawaRoad>(
                 setting.OutDirPath,
@@ -141,7 +138,7 @@ internal sealed class DawaExtract
             _logger.LogInformation("Starting processing {Name}", postCodeOutputName);
 
             var postCodeEnumerable = client
-                .GetAllPostCodesAsync(tId.Id, cancellationToken);
+                .GetAllPostCodesAsync(cancellationToken);
 
             await MakeGeoJsonFile<DawaPostCode>(
                 setting.OutDirPath,
@@ -157,7 +154,9 @@ internal sealed class DawaExtract
                 namedRoadMunicipalDistrictOutputName);
 
             var namedMunicipalDistrictEnumerable = client
-                .GetAllNamedRoadMunicipalDistrictsAsync(tId.Id, cancellationToken);
+                .GetAllNamedRoadMunicipalDistrictsAsync(
+                    new HashSet<DawaNamedRoadMunicipalDistrictStatus> { DawaNamedRoadMunicipalDistrictStatus.Active, DawaNamedRoadMunicipalDistrictStatus.Temporary },
+                    cancellationToken);
 
             await MakeGeoJsonFile<NamedRoadMunicipalDistrict>(
                 setting.OutDirPath,

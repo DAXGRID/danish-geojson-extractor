@@ -109,6 +109,9 @@ internal sealed record Setting
     [JsonPropertyName("ftpSetting")]
     public FtpSetting FtpSetting { get; init; }
 
+    [JsonPropertyName("datafordelerApiKey")]
+    public string DatafordelerApiKey { get; init; }
+
     [JsonPropertyName("outDirPath")]
     public string OutDirPath { get; init; }
 
@@ -127,6 +130,7 @@ internal sealed record Setting
     [JsonConstructor]
     public Setting(
         FtpSetting ftpSetting,
+        string datafordelerApiKey,
         string outDirPath,
         MatrikelSetting? matrikel,
         GeoDanmarkSetting? geoDanmark,
@@ -134,6 +138,7 @@ internal sealed record Setting
         StedNavnSetting? stedNavn)
     {
         FtpSetting = ftpSetting;
+        DatafordelerApiKey = datafordelerApiKey;
         OutDirPath = outDirPath;
         Matrikel = matrikel;
         GeoDanmark = geoDanmark;
