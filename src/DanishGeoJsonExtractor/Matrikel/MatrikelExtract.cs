@@ -1,6 +1,6 @@
-using System.Globalization;
 using DanishGeoJsonExtractor.Datafordeleren;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 
 namespace DanishGeoJsonExtractor.Matrikel;
 
@@ -41,43 +41,7 @@ internal sealed class MatrikelExtract
             return;
         }
 
-        var allAvailableDatasets = (
-            await _datafordelerFileDownload
-            .LatestGenerationFileResourcesCurrentTotalDownloadAsync(format, register, cancellationToken)
-            .ConfigureAwait(false))
-            .DistinctBy(x => x.EntityName)
-            .Select(x => x.EntityName.ToLower(CultureInfo.InvariantCulture))
-            .ToHashSet()
-            .AsReadOnly();
-
-        var missingDataSets = allAvailableDatasets.Except(allDataSets).ToArray();
-        if (missingDataSets.Length != 0)
-        {
-            _logger.LogWarning("The following datasets are missing from the settings: {MissingDataSets}.", String.Join(",", missingDataSets));
-        }
-
-        var configuredDataSetsNotExistExternally = allDataSets.Except(allAvailableDatasets).ToArray();
-        if (configuredDataSetsNotExistExternally.Length != 0)
-        {
-            _logger.LogWarning("The configured dataset do not exist externally: {}", String.Join(",", configuredDataSetsNotExistExternally));
-        }
-
-        var enabledConfiguredDataSetsNotExistExternally = enabledDataSets.Except(allAvailableDatasets).ToArray();
-        if (configuredDataSetsNotExistExternally.Length != 0)
-        {
-            var enabledConfiguredDataSetsNotExistExternallyText = String.Join(",", configuredDataSetsNotExistExternally);
-            _logger.LogError("The enabled configured dataset do not exist externally: {}", String.Join(",", configuredDataSetsNotExistExternally));
-            throw new ArgumentException($"The enabled configured dataset do not exist externally: {enabledConfiguredDataSetsNotExistExternallyText}");
-        }
-
-        var tasks = new List<Task>();
-
-        foreach (var dataset in enabledDataSets)
-        {
-            var executeTask = _datafordelerExtractGeoJson.ExecuteDatasetDownloadProcessing(register, dataset, format, cancellationToken);
-            tasks.Add(executeTask);
-        }
-
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await _datafordelerExtractGeoJson.DownloadProcessExtractGeoJson(
+            register, format, allDataSets, enabledDataSets, cancellationToken).ConfigureAwait(false);
     }
 }

@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Logging;
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO.Compression;
 using System.Net.Sockets;
 
@@ -17,7 +19,50 @@ internal sealed class DatafordelerExtractGeoJson
         _logger = logger;
     }
 
-    public async Task ExecuteDatasetDownloadProcessing(string register, string dataset, string downloadFileFormat, CancellationToken cancellationToken)
+    public async Task DownloadProcessExtractGeoJson(
+        string register, string format, ReadOnlySet<string> allDataSets, ReadOnlyCollection<string> enabledDataSets, CancellationToken cancellationToken)
+    {
+        var allAvailableDatasets = (
+            await _datafordelerFileDownload
+            .LatestGenerationFileResourcesCurrentTotalDownloadAsync(format, register, cancellationToken)
+            .ConfigureAwait(false))
+            .DistinctBy(x => x.EntityName)
+            .Select(x => x.EntityName.ToLower(CultureInfo.InvariantCulture))
+            .ToHashSet()
+            .AsReadOnly();
+
+        var missingDataSets = allAvailableDatasets.Except(allDataSets).ToArray();
+        if (missingDataSets.Length != 0)
+        {
+            _logger.LogWarning("The following datasets are missing from the settings: {MissingDataSets}.", String.Join(",", missingDataSets));
+        }
+
+        var configuredDataSetsNotExistExternally = allDataSets.Except(allAvailableDatasets).ToArray();
+        if (configuredDataSetsNotExistExternally.Length != 0)
+        {
+            _logger.LogWarning("The configured dataset do not exist externally: {}", String.Join(",", configuredDataSetsNotExistExternally));
+        }
+
+        var enabledConfiguredDataSetsNotExistExternally = enabledDataSets.Except(allAvailableDatasets).ToArray();
+        if (configuredDataSetsNotExistExternally.Length != 0)
+        {
+            var enabledConfiguredDataSetsNotExistExternallyText = String.Join(",", configuredDataSetsNotExistExternally);
+            _logger.LogError("The enabled configured dataset do not exist externally: {}", String.Join(",", configuredDataSetsNotExistExternally));
+            throw new ArgumentException($"The enabled configured dataset do not exist externally: {enabledConfiguredDataSetsNotExistExternallyText}");
+        }
+
+        var tasks = new List<Task>();
+
+        foreach (var dataset in enabledDataSets)
+        {
+            var executeTask = ExecuteDatasetDownloadProcessing(register, dataset, format, cancellationToken);
+            tasks.Add(executeTask);
+        }
+
+        await Task.WhenAll(tasks).ConfigureAwait(false);
+    }
+
+    private async Task ExecuteDatasetDownloadProcessing(string register, string dataset, string downloadFileFormat, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Starting {Name}.", dataset);
 
