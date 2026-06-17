@@ -104,7 +104,7 @@ internal sealed class DatafordelerFileDownload : IDisposable
         string register,
         CancellationToken cancellationToken = default)
     {
-        var resourcePath = new Uri($"{_baseAddressApi}/FileDownloads/GetAvailableFileDownloads?Register={register}&format={format}&apikey={_setting.DatafordelerApiKey}");
+        var resourcePath = new Uri($"{_baseAddressApi}/FileDownloads/GetAvailableFileDownloads?Register={register}&format={format}&apikey={_setting.DatafordelerApiKey}&version=3&register={register}");
 
         var response = await _httpClient.GetAsync(resourcePath, cancellationToken).ConfigureAwait(false);
 
