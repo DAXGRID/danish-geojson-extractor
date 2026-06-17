@@ -35,40 +35,46 @@ internal sealed class StartUp
     {
         _logger.LogInformation("Starting GeoJSON extraction.");
 
+        var tasks = new List<Task>();
+
         if (_setting.Matrikel is not null)
         {
             _logger.LogInformation(
                 "Starting processing {Name}.", nameof(_setting.Matrikel));
-            await _matrikelExtract
-                .StartAsync(_setting, cancellationToken)
-                .ConfigureAwait(false);
+
+            var matrikelExtractTask = _matrikelExtract.StartAsync(_setting, cancellationToken);
+
+            tasks.Add(matrikelExtractTask);
         }
 
         if (_setting.GeoDanmark is not null)
         {
-            _logger.LogInformation(
-                "Starting processing {Name}.", nameof(_setting.GeoDanmark));
-            await _geoDanmarkExtract
-                .StartAsync(_setting, cancellationToken)
-                .ConfigureAwait(false);
+            _logger.LogInformation("Starting processing {Name}.", nameof(_setting.GeoDanmark));
+
+            var geoDanmarkExtractTask = _geoDanmarkExtract.StartAsync(_setting, cancellationToken);
+
+            tasks.Add(geoDanmarkExtractTask);
         }
 
         if (_setting.Dawa is not null)
         {
-            _logger.LogInformation(
-               "Starting processing {Name}.", nameof(_setting.Dawa));
-            await _dawaExtract
-                .StartAsync(_setting, cancellationToken)
-                .ConfigureAwait(false);
+            _logger.LogInformation("Starting processing {Name}.", nameof(_setting.Dawa));
+
+            var dawaExtractTask = _dawaExtract.StartAsync(_setting, cancellationToken);
+
+            tasks.Add(dawaExtractTask);
         }
 
         if (_setting.StedNavn is not null)
         {
-            _logger.LogInformation(
-                "Starting processing {Name}.", nameof(_setting.StedNavn));
-            await _stedNavnExtract
-                .StartAsync(_setting, cancellationToken)
-                .ConfigureAwait(false);
+            _logger.LogInformation("Starting processing {Name}.", nameof(_setting.StedNavn));
+
+            var stedNavnExtractTask = _stedNavnExtract
+                .StartAsync(_setting, cancellationToken);
+
+            tasks.Add(stedNavnExtractTask);
         }
+
+        await Task.WhenAll(tasks).ConfigureAwait(false);
     }
 }

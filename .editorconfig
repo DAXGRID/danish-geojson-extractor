@@ -15,3 +15,6 @@ dotnet_diagnostic.CA1064.severity = none
 
 # CA1873: We won't disable logging.
 dotnet_diagnostic.CA1873.severity = none
+
+# CA1308: We don't care about always to upper invariant.
+dotnet_diagnostic.CA1308.severity = none

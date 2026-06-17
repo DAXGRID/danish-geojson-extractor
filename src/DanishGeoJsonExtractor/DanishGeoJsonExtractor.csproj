@@ -13,8 +13,6 @@
 
   <ItemGroup>
     <PackageReference Include="DawaAddress" Version="0.26.0" />
-    <PackageReference Include="fluentftp" Version="54.2.0" />
-    <PackageReference Include="FluentFTP.Logging" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.8" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.8" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.8" />

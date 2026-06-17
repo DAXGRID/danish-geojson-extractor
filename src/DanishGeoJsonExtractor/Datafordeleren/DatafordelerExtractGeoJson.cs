@@ -48,7 +48,9 @@ internal sealed class DatafordelerExtractGeoJson
 
         _logger.LogInformation("Deleting {Name}, no longer needed.", zipFileOutputPath);
         if (File.Exists(zipFileOutputPath))
-            ExtractUtil.DeleteIfExists(zipFileOutputPath);
+        {
+            File.Delete(zipFileOutputPath);
+        }
 
         var extractedFile = Path.Combine(
             _setting.OutDirPath,

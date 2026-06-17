@@ -79,7 +79,7 @@ internal sealed class DatafordelerFileDownload : IDisposable
             .First();
     }
 
-    private async Task<IEnumerable<DatafordelerFile>> LatestGenerationFileResourcesCurrentTotalDownloadAsync(
+    public async Task<IEnumerable<DatafordelerFile>> LatestGenerationFileResourcesCurrentTotalDownloadAsync(
         string format,
         string register,
         CancellationToken cancellationToken = default)

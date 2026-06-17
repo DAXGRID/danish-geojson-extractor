@@ -50,65 +50,8 @@ internal sealed record DawaSetting
     }
 }
 
-internal sealed record FtpSetting
-{
-    [JsonPropertyName("host")]
-    public string Host { get; init; }
-
-    [JsonPropertyName("username")]
-    public string Username { get; init; }
-
-    [JsonPropertyName("password")]
-    public string Password { get; init; }
-
-    [JsonPropertyName("connectionTimeOutSeconds")]
-    public int ConnectionTimeOutSeconds { get; init; }
-
-    [JsonPropertyName("enableLogging")]
-    public bool EnableLogging { get; init; } = false;
-
-    [JsonPropertyName("retryAttempts")]
-    public int RetryAttempts { get; init; } = 10;
-
-    [JsonPropertyName("readTimeoutSeconds")]
-    public int ReadTimeoutSeconds { get; init; } = 120;
-
-    [JsonConstructor]
-    public FtpSetting(string host, string username, string password, int connectionTimeOutSeconds = 60)
-    {
-        if (string.IsNullOrWhiteSpace(host))
-        {
-            throw new ArgumentException(
-                "Cannot be null, empty or whitespace.",
-                nameof(host));
-        }
-
-        if (string.IsNullOrWhiteSpace(username))
-        {
-            throw new ArgumentException(
-                "Cannot be null, empty or whitespace.",
-                nameof(username));
-        }
-
-        if (string.IsNullOrWhiteSpace(password))
-        {
-            throw new ArgumentException(
-                "Cannot be null, empty or whitespace.",
-                nameof(password));
-        }
-
-        Host = host;
-        Username = username;
-        Password = password;
-        ConnectionTimeOutSeconds = connectionTimeOutSeconds;
-    }
-}
-
 internal sealed record Setting
 {
-    [JsonPropertyName("ftpSetting")]
-    public FtpSetting FtpSetting { get; init; }
-
     [JsonPropertyName("datafordelerApiKey")]
     public string DatafordelerApiKey { get; init; }
 
@@ -129,7 +72,6 @@ internal sealed record Setting
 
     [JsonConstructor]
     public Setting(
-        FtpSetting ftpSetting,
         string datafordelerApiKey,
         string outDirPath,
         MatrikelSetting? matrikel,
@@ -137,7 +79,6 @@ internal sealed record Setting
         DawaSetting? dawa,
         StedNavnSetting? stedNavn)
     {
-        FtpSetting = ftpSetting;
         DatafordelerApiKey = datafordelerApiKey;
         OutDirPath = outDirPath;
         Matrikel = matrikel;

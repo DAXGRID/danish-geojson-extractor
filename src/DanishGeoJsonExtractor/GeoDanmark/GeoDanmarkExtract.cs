@@ -1,5 +1,6 @@
-using DanishGeoJsonExtractor.Dataforsyning;
+using DanishGeoJsonExtractor.Datafordeleren;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 using System.IO.Compression;
 
 namespace DanishGeoJsonExtractor.GeoDanmark;
@@ -7,111 +8,75 @@ namespace DanishGeoJsonExtractor.GeoDanmark;
 internal sealed class GeoDanmarkExtract
 {
     private readonly ILogger<GeoDanmarkExtract> _logger;
+    private readonly DatafordelerExtractGeoJson _datafordelerExtractGeoJson;
+    private readonly DatafordelerFileDownload _datafordelerFileDownload;
 
-    public GeoDanmarkExtract(ILogger<GeoDanmarkExtract> logger)
+    public GeoDanmarkExtract(
+        ILogger<GeoDanmarkExtract> logger,
+        DatafordelerExtractGeoJson datafordelerExtractGeoJson,
+        DatafordelerFileDownload datafordelerFileDownload)
     {
         _logger = logger;
+        _datafordelerExtractGeoJson = datafordelerExtractGeoJson;
+        _datafordelerFileDownload = datafordelerFileDownload;
     }
 
     public async Task StartAsync(Setting setting, CancellationToken cancellationToken)
     {
-        var datasets = ExtractUtil
-            .GetEnabled(setting.GeoDanmark!.Datasets)
+        const string register = "GEODKV";
+        const string format = "gpkg";
+
+        var allDataSets = setting.GeoDanmark!.Datasets.Select(x => x.Key).ToHashSet().AsReadOnly();
+        var enabledDataSets = setting.StedNavn!.Datasets
+            .Where(x => x.Value)
+            .Select(x => x.Key)
             .ToList()
             .AsReadOnly();
 
-        if (datasets.Count == 0)
+        if (enabledDataSets.Count == 0)
         {
             _logger.LogInformation(
-                "No datasets enabled for GeoDanmark, so skips extraction.");
+                $"No datasets enabled for StedNavn, so skips extraction.");
             return;
         }
 
-        const string remoteRootPath = "/";
-        const string folderStartName = "GeoDanmark60_GML_HF";
+        var allAvailableDatasets = (
+            await _datafordelerFileDownload
+            .LatestGenerationFileResourcesCurrentTotalDownloadAsync(format, register, cancellationToken)
+            .ConfigureAwait(false))
+            .DistinctBy(x => x.EntityName)
+            .Select(x => x.EntityName.ToLower(CultureInfo.InvariantCulture))
+            .ToHashSet()
+            .AsReadOnly();
 
-        List<(string remotePath, string localPath)>? downloads = null;
-        using (var ftpClient = new DataforsyningFtpClient(setting.FtpSetting, _logger))
+        var missingDataSets = allAvailableDatasets.Except(allDataSets).ToArray();
+        if (missingDataSets.Length != 0)
         {
-            var ftpFiles = await ftpClient
-                .DirectoriesInPathAsync(remoteRootPath, cancellationToken)
-                .ConfigureAwait(false);
-
-            var newestDirectory = ExtractUtil.NewestDirectory(folderStartName, ftpFiles);
-            if (newestDirectory?.name is null)
-            {
-                _logger.LogError(
-                    "Could not find the folder: {FolderName} on datafordeleren.",
-                    folderStartName);
-
-                throw new FtpDirectoryNotFoundException(
-                    $"The directory {folderStartName} does not exist on the FTP server.");
-            }
-
-            downloads = datasets.Select(dataset =>
-            {
-                var remotePath = Path.Combine(
-                    remoteRootPath,
-                    newestDirectory.Value.name,
-                    "Tema",
-                    $"{dataset}.zip");
-
-                var localPath = Path.Combine(setting.OutDirPath, $"{dataset}.zip");
-
-                return (remotePath: remotePath, localPath: localPath);
-            }).ToList();
+            _logger.LogWarning("The following datasets are missing from the settings: {MissingDataSets}.", String.Join(",", missingDataSets));
         }
 
-        foreach (var download in downloads)
+        var configuredDataSetsNotExistExternally = allDataSets.Except(allAvailableDatasets).ToArray();
+        if (configuredDataSetsNotExistExternally.Length != 0)
         {
-            // We use multiple ftp clients because datafordeler might time it out.
-#pragma warning disable CA2000 // Seems like the static analysis thinks this is not being disposed.
-            using var localFtpClient = new DataforsyningFtpClient(setting.FtpSetting, _logger);
-#pragma warning restore CA2000
-
-            _logger.LogInformation("Starting download {FilePath}.", download.remotePath);
-            await localFtpClient
-                .RetryDownloadFileAsync(
-                    download.remotePath,
-                    download.localPath,
-                    cancellationToken)
-                .ConfigureAwait(false);
-
-            var zipFileOutputPath = Path.Combine(
-                setting.OutDirPath,
-                Path.GetFileName(download.remotePath));
-
-            await ZipFile.ExtractToDirectoryAsync(zipFileOutputPath, setting.OutDirPath, true, cancellationToken).ConfigureAwait(false);
-            File.Delete(zipFileOutputPath);
-
-            var fileName = Path.GetFileNameWithoutExtension(download.remotePath);
-
-            // Check if output files already exists, if they do delete them.
-            ExtractUtil.DeleteIfExists(
-                Path.Combine(Path.Combine(setting.OutDirPath, $"{fileName}.geojson")));
-
-            _logger.LogInformation(
-                "Extracting geojson for {FileName}.",
-                fileName);
-
-            var extractArguments = GeoJsonExtract.BuildArguments(fileName, $"{fileName}.gml", null);
-            _logger.LogDebug(
-                "Executing {ExecuteableName} with {Arguments}.",
-                GeoJsonExtract.ExecuteableName, extractArguments);
-
-            await GeoJsonExtract
-                .ExtractGeoJson(
-                    workingDirectory: setting.OutDirPath,
-                    arguments: extractArguments,
-                    cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
-
-            // Delete output from zip, it is no longer needed.
-            ExtractUtil.DeleteIfExists(
-                Path.Combine(setting.OutDirPath, $"{fileName}.gml"));
-
-            ExtractUtil.DeleteIfExists(
-                Path.Combine(setting.OutDirPath, $"{fileName}.xsd"));
+            _logger.LogWarning("The configured dataset do not exist externally: {}", String.Join(",", configuredDataSetsNotExistExternally));
         }
+
+        var enabledConfiguredDataSetsNotExistExternally = enabledDataSets.Except(allAvailableDatasets).ToArray();
+        if (configuredDataSetsNotExistExternally.Length != 0)
+        {
+            var enabledConfiguredDataSetsNotExistExternallyText = String.Join(",", configuredDataSetsNotExistExternally);
+            _logger.LogError("The enabled configured dataset do not exist externally: {}", String.Join(",", configuredDataSetsNotExistExternally));
+            throw new ArgumentException($"The enabled configured dataset do not exist externally: {enabledConfiguredDataSetsNotExistExternallyText}");
+        }
+
+        var tasks = new List<Task>();
+
+        foreach (var dataset in enabledDataSets)
+        {
+            var executeTask = _datafordelerExtractGeoJson.ExecuteDatasetDownloadProcessing(register, dataset, format, cancellationToken);
+            tasks.Add(executeTask);
+        }
+
+        await Task.WhenAll(tasks).ConfigureAwait(false);
     }
 }

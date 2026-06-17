@@ -70,8 +70,10 @@ internal sealed class DawaExtract
         Setting setting,
         CancellationToken cancellationToken = default)
     {
-        var datasets = ExtractUtil
-            .GetEnabled(setting.Dawa!.Datasets)
+        var datasets =
+            setting.Dawa!.Datasets
+            .Where(x => x.Value)
+            .Select(x => x.Key)
             .ToList()
             .AsReadOnly();
 
