@@ -66,17 +66,24 @@ internal sealed class DatafordelerFileDownload : IDisposable
         CancellationToken cancellationToken = default)
     {
         var resources = await LatestGenerationFileResourcesCurrentTotalDownloadAsync(format, register, cancellationToken).ConfigureAwait(false);
-        return resources
-            .Where(x => x.EntityName.Equals(resourceName, StringComparison.OrdinalIgnoreCase))
-            // This is done because sometimes there can be multiple total downloads with a subset.
-            // Don't ask me why, an exaple is:
-            // Full:
-            // DAR_V3_NavngivenVej_TotalDownload_json_Current_636.zip
-            // Subsets:
-            // DAR_V3_Adressepunkt_0766_TotalDownload_json_Current_636.zip
-            // DAR_V3_Adressepunkt_0787_TotalDownload_json_Current_636.zip
-            .Where(x => x.FileName.StartsWith($"{register}_V3_{resourceName}_TotalDownload_{format}_Current_", StringComparison.OrdinalIgnoreCase))
-            .First();
+        try
+        {
+            return resources
+                .Where(x => x.EntityName.Equals(resourceName, StringComparison.OrdinalIgnoreCase))
+                // This is done because sometimes there can be multiple total downloads with a subset.
+                // Don't ask me why, an exaple is:
+                // Full:
+                // DAR_V3_NavngivenVej_TotalDownload_json_Current_636.zip
+                // Subsets:
+                // DAR_V3_Adressepunkt_0766_TotalDownload_json_Current_636.zip
+                // DAR_V3_Adressepunkt_0787_TotalDownload_json_Current_636.zip
+                .Where(x => x.FileName.StartsWith($"{register}_V3_{resourceName}_TotalDownload_{format}_Current_", StringComparison.OrdinalIgnoreCase))
+                .First();
+        }
+        catch (System.InvalidOperationException)
+        {
+            throw new InvalidOperationException($"Could not find resource in register: '{register}' with resource name: '{resourceName}' in the format: '{format}'." );
+        }
     }
 
     public async Task<IEnumerable<DatafordelerFile>> LatestGenerationFileResourcesCurrentTotalDownloadAsync(
@@ -85,8 +92,6 @@ internal sealed class DatafordelerFileDownload : IDisposable
         CancellationToken cancellationToken = default)
     {
         var resources = await LatestGenerationFileResourcesAsync(format, register, cancellationToken).ConfigureAwait(false);
-
-        // Console.WriteLine(JsonSerializer.Serialize(resources.DistinctBy(x => x.EntityName).Select(x => x.EntityName)));
 
         return resources
             .Where(x => x.TypeOfDownload == "TotalDownload")
