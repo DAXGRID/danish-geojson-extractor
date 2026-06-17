@@ -71,6 +71,7 @@ internal static class Program
             .AddSingleton<StartUp>()
             .AddSingleton<Setting>(setting)
             .AddSingleton<DatafordelerFileDownload>()
+            .AddSingleton<DatafordelerExtractGeoJson>()
             .AddSingleton<GeoDanmarkExtract>()
             .AddSingleton<MatrikelExtract>()
             .AddSingleton<DawaExtract>()
