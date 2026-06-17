@@ -17,7 +17,7 @@ internal sealed class DatafordelerExtractGeoJson
         _logger = logger;
     }
 
-    public async Task ExecuteDatasetDownloadProcessing(string dataset, string downloadFileFormat, CancellationToken cancellationToken)
+    public async Task ExecuteDatasetDownloadProcessing(string register, string dataset, string downloadFileFormat, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Starting {Name}.", dataset);
 
@@ -27,7 +27,7 @@ internal sealed class DatafordelerExtractGeoJson
         {
             try
             {
-                zipFileOutputPath = await _datafordelerFileDownload.DownloadAsync("MAT", dataset, downloadFileFormat, _setting.OutDirPath, cancellationToken).ConfigureAwait(false);
+                zipFileOutputPath = await _datafordelerFileDownload.DownloadAsync(register, dataset, downloadFileFormat, _setting.OutDirPath, cancellationToken).ConfigureAwait(false);
                 _logger.LogInformation("Downloading {Name} to {OutputFileName}.", dataset, zipFileOutputPath);
             }
             catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionReset)

@@ -35,7 +35,7 @@ internal sealed class MatrikelExtract
 
         foreach (var dataset in datasets)
         {
-            var executeTask = _datafordelerExtractGeoJson.ExecuteDatasetDownloadProcessing(dataset, "gpkg", cancellationToken);
+            var executeTask = _datafordelerExtractGeoJson.ExecuteDatasetDownloadProcessing("MAT", dataset, "gpkg", cancellationToken);
             tasks.Add(executeTask);
         }
 
