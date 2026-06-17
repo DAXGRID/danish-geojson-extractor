@@ -34,17 +34,27 @@ internal sealed class DatafordelerFileDownload : IDisposable
 
         var uri = BuildResourcePathFileDownload(_baseAddressApi, latestGenerationFile.FileName, _setting.DatafordelerApiKey);
 
-        var response = await _httpClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
+        using var response = await _httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
 
+        var tempOutputFilePath = $"{Path.Combine(outputPath, latestGenerationFile.FileName)}.tmp";
         var outputFilePath = Path.Combine(outputPath, latestGenerationFile.FileName);
 
-        var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-        using (var fs = new FileStream(outputFilePath, FileMode.Create))
-        {
-            await stream.CopyToAsync(fs, cancellationToken).ConfigureAwait(false);
-        }
+        using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+        using var fs = new FileStream(
+            tempOutputFilePath,
+            new FileStreamOptions
+            {
+                Mode = FileMode.Create,
+                Access = FileAccess.Write,
+                Share = FileShare.None,
+                Options = FileOptions.Asynchronous
+            });
+
+        await stream.CopyToAsync(fs, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        File.Move(tempOutputFilePath, outputFilePath, overwrite: true);
 
         return outputFilePath;
     }
