@@ -28,7 +28,7 @@ internal sealed class MatrikelExtract
         const string format = "gpkg";
 
         var allDataSets = setting.Matrikel!.Datasets.Select(x => x.Key).ToHashSet().AsReadOnly();
-        var enabledDataSets = setting.StedNavn!.Datasets
+        var enabledDataSets = setting.Matrikel!.Datasets
             .Where(x => x.Value)
             .Select(x => x.Key)
             .ToList()

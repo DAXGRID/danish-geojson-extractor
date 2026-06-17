@@ -27,7 +27,7 @@ internal sealed class GeoDanmarkExtract
         const string format = "gpkg";
 
         var allDataSets = setting.GeoDanmark!.Datasets.Select(x => x.Key).ToHashSet().AsReadOnly();
-        var enabledDataSets = setting.StedNavn!.Datasets
+        var enabledDataSets = setting.GeoDanmark!.Datasets
             .Where(x => x.Value)
             .Select(x => x.Key)
             .ToList()
