@@ -75,7 +75,7 @@ internal sealed class DatafordelerExtractGeoJson
                 zipFileOutputPath = await _datafordelerFileDownload.DownloadAsync(register, dataset, downloadFileFormat, _setting.OutDirPath, cancellationToken).ConfigureAwait(false);
                 _logger.LogInformation("Downloading {Name} to {OutputFileName}.", dataset, zipFileOutputPath);
             }
-            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionReset)
+            catch (SocketException ex)
             {
                 downloadRetryCount++;
                 if (downloadRetryCount == 10)
