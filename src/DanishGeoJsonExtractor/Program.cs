@@ -39,7 +39,7 @@ internal static class Program
         catch (Exception ex)
         {
             await cancellationToken.CancelAsync().ConfigureAwait(false);
-            logger.LogError("{Exception}", ex);
+            logger.LogError("{Exception}, {ExceptionMessage}", ex, ex.Message);
             throw;
         }
     }
