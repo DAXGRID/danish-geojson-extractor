@@ -43,7 +43,7 @@ internal sealed class StedNavnExtract
 
         var allAvailableDatasets = (
             await _datafordelerFileDownload
-            .LatestGenerationFileResourcesCurrentTotalDownloadAsync(format, register, cancellationToken)
+            .LatestGenerationFileResourcesCurrentTotalDownloadAsync(format, register, null, cancellationToken)
             .ConfigureAwait(false))
             .DistinctBy(x => x.EntityName)
             .Select(x => x.EntityName.ToLower(CultureInfo.InvariantCulture))

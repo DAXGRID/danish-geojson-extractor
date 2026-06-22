@@ -62,15 +62,15 @@ internal sealed class DatafordelerFileDownload : IDisposable
 
     private async Task<DatafordelerFile> LatestGenerationFileResourceCurrentTotalDownloadAsync(
         string register,
-        string resourceName,
+        string entity,
         string format,
         CancellationToken cancellationToken = default)
     {
-        var resources = await LatestGenerationFileResourcesCurrentTotalDownloadAsync(format, register, cancellationToken).ConfigureAwait(false);
+        var resources = await LatestGenerationFileResourcesCurrentTotalDownloadAsync(format, register, entity, cancellationToken).ConfigureAwait(false);
         try
         {
             return resources
-                .Where(x => x.EntityName.Equals(resourceName, StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.EntityName.Equals(entity, StringComparison.OrdinalIgnoreCase))
                 // This is done because sometimes there can be multiple total downloads with a subset.
                 // Don't ask me why, an exaple is:
                 // Full:
@@ -78,21 +78,22 @@ internal sealed class DatafordelerFileDownload : IDisposable
                 // Subsets:
                 // DAR_V3_Adressepunkt_0766_TotalDownload_json_Current_636.zip
                 // DAR_V3_Adressepunkt_0787_TotalDownload_json_Current_636.zip
-                .Where(x => x.FileName.StartsWith($"{register}_V3_{resourceName}_TotalDownload_{format}_Current_", StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.FileName.StartsWith($"{register}_V3_{entity}_TotalDownload_{format}_Current_", StringComparison.OrdinalIgnoreCase))
                 .First();
         }
         catch (System.InvalidOperationException)
         {
-            throw new InvalidOperationException($"Could not find resource in register: '{register}' with resource name: '{resourceName}' in the format: '{format}'.");
+            throw new InvalidOperationException($"Could not find resource in register: '{register}' with resource name: '{entity}' in the format: '{format}'.");
         }
     }
 
     public async Task<IEnumerable<DatafordelerFile>> LatestGenerationFileResourcesCurrentTotalDownloadAsync(
         string format,
         string register,
+        string? entity = null,
         CancellationToken cancellationToken = default)
     {
-        var resources = await LatestGenerationFileResourcesAsync(format, register, cancellationToken).ConfigureAwait(false);
+        var resources = await LatestGenerationFileResourcesAsync(format, register, entity, cancellationToken).ConfigureAwait(false);
         return resources
             .Where(x => x.TypeOfDownload == "TotalDownload")
             .Where(x => x.TypeOfData == "Current")
@@ -103,11 +104,17 @@ internal sealed class DatafordelerFileDownload : IDisposable
     private async Task<IEnumerable<DatafordelerFile>> LatestGenerationFileResourcesAsync(
         string format,
         string register,
+        string? entity = null,
         CancellationToken cancellationToken = default)
     {
         async Task<DatafordelerFileResponse> GetAvailableFileDownloadsAsync(int pageNumber)
         {
             var resourcePath = $"{_baseAddressApi}/FileDownloads/GetAvailableFileDownloads?Register={register}&format={format}&apikey={_setting.DatafordelerApiKey}&Version=3&Register={register}&PageNumber={pageNumber}";
+
+            if (entity is not null)
+            {
+                resourcePath = $"{resourcePath}&Entity={entity}";
+            }
 
             var response = await _httpClient.GetAsync(new Uri(resourcePath), cancellationToken).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
