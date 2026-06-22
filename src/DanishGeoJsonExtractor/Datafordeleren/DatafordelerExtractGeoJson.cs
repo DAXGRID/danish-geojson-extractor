@@ -40,26 +40,21 @@ internal sealed class DatafordelerExtractGeoJson
         var configuredDataSetsNotExistExternally = allDataSets.Except(allAvailableDatasets).ToArray();
         if (configuredDataSetsNotExistExternally.Length != 0)
         {
-            _logger.LogWarning("The configured dataset do not exist externally: {}", String.Join(",", configuredDataSetsNotExistExternally));
+            _logger.LogWarning("The configured dataset do not exist externally: {ConfiguredDataSetsNotExistExternally}", String.Join(",", configuredDataSetsNotExistExternally));
         }
 
         var enabledConfiguredDataSetsNotExistExternally = enabledDataSets.Except(allAvailableDatasets).ToArray();
-        if (configuredDataSetsNotExistExternally.Length != 0)
+        if (enabledConfiguredDataSetsNotExistExternally.Length != 0)
         {
-            var enabledConfiguredDataSetsNotExistExternallyText = String.Join(",", configuredDataSetsNotExistExternally);
-            _logger.LogError("The enabled configured dataset do not exist externally: {}", String.Join(",", configuredDataSetsNotExistExternally));
+            var enabledConfiguredDataSetsNotExistExternallyText = String.Join(",", enabledConfiguredDataSetsNotExistExternally);
+            _logger.LogError("The enabled configured dataset do not exist externally: {EnabledConfiguredDataSetsNotExistExternally}", enabledConfiguredDataSetsNotExistExternallyText);
             throw new ArgumentException($"The enabled configured dataset do not exist externally: {enabledConfiguredDataSetsNotExistExternallyText}");
         }
 
-        var tasks = new List<Task>();
-
-        foreach (var dataset in enabledDataSets)
+        await Parallel.ForEachAsync(enabledDataSets, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, async (dataset, cancellationToken) =>
         {
-            var executeTask = ExecuteDatasetDownloadProcessing(register, dataset, format, cancellationToken);
-            tasks.Add(executeTask);
-        }
-
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+            await ExecuteDatasetDownloadProcessing(register, dataset, format, cancellationToken).ConfigureAwait(false);
+        }).ConfigureAwait(false);
     }
 
     private async Task ExecuteDatasetDownloadProcessing(string register, string dataset, string downloadFileFormat, CancellationToken cancellationToken)
@@ -75,16 +70,19 @@ internal sealed class DatafordelerExtractGeoJson
                 zipFileOutputPath = await _datafordelerFileDownload.DownloadAsync(register, dataset, downloadFileFormat, _setting.OutDirPath, cancellationToken).ConfigureAwait(false);
                 _logger.LogInformation("Downloading {Name} to {OutputFileName}.", dataset, zipFileOutputPath);
             }
-            catch (SocketException ex)
+            catch (IOException ex) when (
+                ex.InnerException is SocketException se &&
+                se.SocketErrorCode == SocketError.ConnectionReset)
             {
                 downloadRetryCount++;
                 if (downloadRetryCount == 10)
                 {
-                    _logger.LogError("Reached maximum of {Retries}, throwing: {Exception}", downloadRetryCount, ex);
+                    _logger.LogError("Reached maximum of {Retries} for {Dataset}, throwing: {Exception}", downloadRetryCount, dataset, ex);
                     throw;
                 }
 
-                _logger.LogWarning("Socket connection was reset by the server, retrying {RetryCount}.", downloadRetryCount);
+                _logger.LogWarning("Socket connection was reset by the server for {Dataset}, retrying {RetryCount}.", dataset, downloadRetryCount);
+                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).ConfigureAwait(false);
             }
         }
 

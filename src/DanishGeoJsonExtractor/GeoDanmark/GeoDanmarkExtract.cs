@@ -36,7 +36,7 @@ internal sealed class GeoDanmarkExtract
         if (enabledDataSets.Count == 0)
         {
             _logger.LogInformation(
-                $"No datasets enabled for StedNavn, so skips extraction.");
+                $"No datasets enabled for GeoDanmark, so skips extraction.");
             return;
         }
 

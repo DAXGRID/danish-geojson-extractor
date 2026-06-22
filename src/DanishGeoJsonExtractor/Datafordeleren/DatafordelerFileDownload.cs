@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace DanishGeoJsonExtractor.Datafordeleren;
 
@@ -82,7 +83,7 @@ internal sealed class DatafordelerFileDownload : IDisposable
         }
         catch (System.InvalidOperationException)
         {
-            throw new InvalidOperationException($"Could not find resource in register: '{register}' with resource name: '{resourceName}' in the format: '{format}'." );
+            throw new InvalidOperationException($"Could not find resource in register: '{register}' with resource name: '{resourceName}' in the format: '{format}'.");
         }
     }
 
@@ -92,10 +93,10 @@ internal sealed class DatafordelerFileDownload : IDisposable
         CancellationToken cancellationToken = default)
     {
         var resources = await LatestGenerationFileResourcesAsync(format, register, cancellationToken).ConfigureAwait(false);
-
         return resources
             .Where(x => x.TypeOfDownload == "TotalDownload")
             .Where(x => x.TypeOfData == "Current")
+            .Where(x => Regex.IsMatch(x.FileName, $"{register}_V3_[A-Za-z]*_TotalDownload_[A-Za-z]*_Current_[1-9]*.zip"))
             .OrderByDescending(x => x.GenerationNumber);
     }
 
@@ -104,21 +105,41 @@ internal sealed class DatafordelerFileDownload : IDisposable
         string register,
         CancellationToken cancellationToken = default)
     {
-        var resourcePath = new Uri($"{_baseAddressApi}/FileDownloads/GetAvailableFileDownloads?Register={register}&format={format}&apikey={_setting.DatafordelerApiKey}&Version=3&Register={register}");
-
-        var response = await _httpClient.GetAsync(resourcePath, cancellationToken).ConfigureAwait(false);
-
-        response.EnsureSuccessStatusCode();
-
-        var resources = await response.Content.ReadFromJsonAsync<DatafordelerFileResponse>(cancellationToken).ConfigureAwait(false);
-
-        if (resources is null)
+        async Task<DatafordelerFileResponse> GetAvailableFileDownloadsAsync(int pageNumber)
         {
-            throw new InvalidOperationException($"Received NULL when trying to get resouces from path: '{resourcePath}'.");
+            var resourcePath = $"{_baseAddressApi}/FileDownloads/GetAvailableFileDownloads?Register={register}&format={format}&apikey={_setting.DatafordelerApiKey}&Version=3&Register={register}&PageNumber={pageNumber}";
+
+            var response = await _httpClient.GetAsync(new Uri(resourcePath), cancellationToken).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+
+            if (response is null)
+            {
+                throw new InvalidOperationException($"Received NULL when trying to get resouces from path: '{resourcePath}'.");
+            }
+
+            var datafordelerFileResponse = await response.Content.ReadFromJsonAsync<DatafordelerFileResponse>(cancellationToken).ConfigureAwait(false);
+            return datafordelerFileResponse!;
         }
 
-        return resources
-            .AvailableFileDownloads
+        var initialPageResponse = await GetAvailableFileDownloadsAsync(1).ConfigureAwait(false);
+        var totalResources = new List<DatafordelerFile>(initialPageResponse.PaginationMetadata.TotalCount);
+        totalResources.AddRange(initialPageResponse.AvailableFileDownloads);
+
+        if (initialPageResponse.PaginationMetadata.TotalPages > 1)
+        {
+            for (var pageCount = 2; pageCount <= initialPageResponse.PaginationMetadata.TotalPages; pageCount++)
+            {
+                var pageResponse = await GetAvailableFileDownloadsAsync(pageCount).ConfigureAwait(false);
+                totalResources.AddRange(pageResponse.AvailableFileDownloads);
+            }
+        }
+
+        if (totalResources.Count != initialPageResponse.PaginationMetadata.TotalCount)
+        {
+            throw new InvalidDataException($"The initial page count does not match the count of objects retrieved from available file downloads. Expected: {initialPageResponse.PaginationMetadata.TotalCount}, retrieved {totalResources.Count}");
+        }
+
+        return totalResources
             .Where(x => x.ContainedFileFormat == format)
             .Where(x => x.Version == "3");
     }
@@ -145,6 +166,24 @@ internal sealed record DatafordelerFileResponse
 {
     [JsonPropertyName("availableFileDownloads")]
     public required IReadOnlyList<DatafordelerFile> AvailableFileDownloads { get; init; }
+
+    [JsonPropertyName("paginationMetadata")]
+    public required PaginationMetadata PaginationMetadata { get; init; }
+}
+
+internal sealed record PaginationMetadata
+{
+    [JsonPropertyName("currentPage")]
+    public required int CurrentPage { get; init; }
+
+    [JsonPropertyName("pageSize")]
+    public required int PageSize { get; init; }
+
+    [JsonPropertyName("totalCount")]
+    public required int TotalCount { get; init; }
+
+    [JsonPropertyName("totalPages")]
+    public required int TotalPages { get; init; }
 }
 
 internal sealed record DatafordelerFile
