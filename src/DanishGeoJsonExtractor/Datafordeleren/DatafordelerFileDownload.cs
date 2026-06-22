@@ -8,6 +8,9 @@ namespace DanishGeoJsonExtractor.Datafordeleren;
 internal sealed class DatafordelerFileDownload : IDisposable
 {
     private const string _baseAddressApi = "https://api.datafordeler.dk";
+    private const string _version = "V3";
+    private const string _downloadType = "TotalDownload";
+    private const string _typeOfData = "Current";
 
     private readonly HttpClient _httpClient;
     private readonly Setting _setting;
@@ -78,7 +81,7 @@ internal sealed class DatafordelerFileDownload : IDisposable
                 // Subsets:
                 // DAR_V3_Adressepunkt_0766_TotalDownload_json_Current_636.zip
                 // DAR_V3_Adressepunkt_0787_TotalDownload_json_Current_636.zip
-                .Where(x => x.FileName.StartsWith($"{register}_V3_{entity}_TotalDownload_{format}_Current_", StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.FileName.StartsWith($"{register}_{_version}_{entity}_{_downloadType}_{format}_{_typeOfData}_", StringComparison.OrdinalIgnoreCase))
                 .First();
         }
         catch (System.InvalidOperationException)
@@ -95,9 +98,9 @@ internal sealed class DatafordelerFileDownload : IDisposable
     {
         var resources = await LatestGenerationFileResourcesAsync(format, register, entity, cancellationToken).ConfigureAwait(false);
         return resources
-            .Where(x => x.TypeOfDownload == "TotalDownload")
-            .Where(x => x.TypeOfData == "Current")
-            .Where(x => Regex.IsMatch(x.FileName, $"{register}_V3_[A-Za-z]*_TotalDownload_[A-Za-z]*_Current_[1-9]*.zip"))
+            .Where(x => x.TypeOfDownload == _downloadType)
+            .Where(x => x.TypeOfData == _typeOfData)
+            .Where(x => Regex.IsMatch(x.FileName, $"{register}_{_version}_[A-Za-z]*_{_downloadType}_[A-Za-z]*_{_typeOfData}_[1-9]*.zip"))
             .OrderByDescending(x => x.GenerationNumber);
     }
 
