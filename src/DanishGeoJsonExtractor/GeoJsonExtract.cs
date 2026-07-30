@@ -25,7 +25,14 @@ internal static class GeoJsonExtract
         string inputFileName,
         string? layerNames = null)
     {
-        return $"-f GeoJSON \"{outFileName}.geojson\" \"{inputFileName}\" {layerNames}";
+        if (inputFileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"-f GeoJSON \"{outFileName}.geojson\" \"{inputFileName}\" -oo GEOM_POSSIBLE_NAMES=position";
+        }
+        else
+        {
+            return $"-f GeoJSON \"{outFileName}.geojson\" \"{inputFileName}\" {layerNames}";
+        }
     }
 
     public static async Task ExtractGeoJson(

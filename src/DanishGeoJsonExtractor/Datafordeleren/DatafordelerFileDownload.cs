@@ -100,7 +100,7 @@ internal sealed class DatafordelerFileDownload : IDisposable
         return resources
             .Where(x => x.TypeOfDownload == _downloadType)
             .Where(x => x.TypeOfData == _typeOfData)
-            .Where(x => Regex.IsMatch(x.FileName, $"{register}_{_version}_[A-Za-z]*_{_downloadType}_[A-Za-z]*_{_typeOfData}_[1-9]*.zip"))
+            .Where(x => Regex.IsMatch(x.FileName, $"{register}_{_version}_[A-Za-z]*_{_downloadType}_[A-Za-z]*_{_typeOfData}_[0-9]*.zip"))
             .OrderByDescending(x => x.GenerationNumber);
     }
 

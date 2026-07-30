@@ -41,15 +41,6 @@ internal sealed class StedNavnExtract
             return;
         }
 
-        var allAvailableDatasets = (
-            await _datafordelerFileDownload
-            .LatestGenerationFileResourcesCurrentTotalDownloadAsync(format, register, null, cancellationToken)
-            .ConfigureAwait(false))
-            .DistinctBy(x => x.EntityName)
-            .Select(x => x.EntityName.ToLower(CultureInfo.InvariantCulture))
-            .ToHashSet()
-            .AsReadOnly();
-
         await _datafordelerExtractGeoJson.DownloadProcessExtractGeoJson(
             register, format, allDataSets, enabledDataSets, cancellationToken).ConfigureAwait(false);
     }

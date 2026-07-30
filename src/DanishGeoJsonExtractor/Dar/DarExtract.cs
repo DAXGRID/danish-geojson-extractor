@@ -3,16 +3,16 @@ using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.IO.Compression;
 
-namespace DanishGeoJsonExtractor.GeoDanmark;
+namespace DanishGeoJsonExtractor.Dar;
 
-internal sealed class GeoDanmarkExtract
+internal sealed class DarExtract
 {
-    private readonly ILogger<GeoDanmarkExtract> _logger;
+    private readonly ILogger<DarExtract> _logger;
     private readonly DatafordelerExtractGeoJson _datafordelerExtractGeoJson;
     private readonly DatafordelerFileDownload _datafordelerFileDownload;
 
-    public GeoDanmarkExtract(
-        ILogger<GeoDanmarkExtract> logger,
+    public DarExtract(
+        ILogger<DarExtract> logger,
         DatafordelerExtractGeoJson datafordelerExtractGeoJson,
         DatafordelerFileDownload datafordelerFileDownload)
     {
@@ -23,11 +23,11 @@ internal sealed class GeoDanmarkExtract
 
     public async Task StartAsync(Setting setting, CancellationToken cancellationToken)
     {
-        const string register = "GEODKV";
-        const string format = "gpkg";
+        const string register = "DAR";
+        const string format = "csv";
 
-        var allDataSets = setting.GeoDanmark!.Datasets.Select(x => x.Key).ToHashSet().AsReadOnly();
-        var enabledDataSets = setting.GeoDanmark!.Datasets
+        var allDataSets = setting.Dar!.Datasets.Select(x => x.Key).ToHashSet().AsReadOnly();
+        var enabledDataSets = setting.Dar!.Datasets
             .Where(x => x.Value)
             .Select(x => x.Key)
             .ToList()

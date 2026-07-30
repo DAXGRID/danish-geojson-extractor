@@ -1,4 +1,5 @@
-﻿using DanishGeoJsonExtractor.Datafordeleren;
+﻿using DanishGeoJsonExtractor.Dar;
+using DanishGeoJsonExtractor.Datafordeleren;
 using DanishGeoJsonExtractor.Dawa;
 using DanishGeoJsonExtractor.GeoDanmark;
 using DanishGeoJsonExtractor.Matrikel;
@@ -76,6 +77,7 @@ internal static class Program
             .AddSingleton<MatrikelExtract>()
             .AddSingleton<DawaExtract>()
             .AddSingleton<StedNavnExtract>()
+            .AddSingleton<DarExtract>()
             .BuildServiceProvider();
     }
 }

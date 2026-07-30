@@ -2,6 +2,18 @@ using System.Text.Json.Serialization;
 
 namespace DanishGeoJsonExtractor;
 
+internal sealed record DarSetting
+{
+    [JsonPropertyName("datasets")]
+    public Dictionary<string, bool> Datasets { get; init; }
+
+    [JsonConstructor]
+    public DarSetting(Dictionary<string, bool> datasets)
+    {
+        Datasets = datasets;
+    }
+}
+
 internal sealed record StedNavnSetting
 {
     [JsonPropertyName("datasets")]
@@ -70,6 +82,9 @@ internal sealed record Setting
     [JsonPropertyName("stedNavn")]
     public StedNavnSetting? StedNavn { get; init; }
 
+    [JsonPropertyName("dar")]
+    public DarSetting? Dar { get; init; }
+
     [JsonConstructor]
     public Setting(
         string datafordelerApiKey,
@@ -77,7 +92,8 @@ internal sealed record Setting
         MatrikelSetting? matrikel,
         GeoDanmarkSetting? geoDanmark,
         DawaSetting? dawa,
-        StedNavnSetting? stedNavn)
+        StedNavnSetting? stedNavn,
+        DarSetting? dar)
     {
         DatafordelerApiKey = datafordelerApiKey;
         OutDirPath = outDirPath;
@@ -85,5 +101,6 @@ internal sealed record Setting
         GeoDanmark = geoDanmark;
         Dawa = dawa;
         StedNavn = stedNavn;
+        Dar = dar;
     }
 }
