@@ -53,7 +53,7 @@ internal sealed class DatafordelerFileDownload : IDisposable
                 Mode = FileMode.Create,
                 Access = FileAccess.Write,
                 Share = FileShare.None,
-                Options = FileOptions.Asynchronous
+                Options = FileOptions.WriteThrough
             });
 
         await stream.CopyToAsync(fs, cancellationToken: cancellationToken).ConfigureAwait(false);
