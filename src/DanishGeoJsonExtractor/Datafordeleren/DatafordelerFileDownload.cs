@@ -56,9 +56,8 @@ internal sealed class DatafordelerFileDownload : IDisposable
                 Options = FileOptions.Asynchronous
             });
 
-        await fs.FlushAsync().ConfigureAwait(false);
-
         await stream.CopyToAsync(fs, cancellationToken: cancellationToken).ConfigureAwait(false);
+        await fs.FlushAsync().ConfigureAwait(false);
 
         File.Move(tempOutputFilePath, outputFilePath, overwrite: true);
 
