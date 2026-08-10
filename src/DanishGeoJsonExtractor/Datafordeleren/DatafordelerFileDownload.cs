@@ -59,7 +59,25 @@ internal sealed class DatafordelerFileDownload : IDisposable
         await stream.CopyToAsync(fs, cancellationToken: cancellationToken).ConfigureAwait(false);
         await fs.FlushAsync(cancellationToken).ConfigureAwait(false);
 
-        File.Move(tempOutputFilePath, outputFilePath, overwrite: true);
+        var retryCount = 0;
+        const int maxRetryCount = 10;
+        while (true)
+        {
+            try
+            {
+                File.Move(tempOutputFilePath, outputFilePath, overwrite: true);
+                break;
+            }
+            catch (IOException)
+            {
+                retryCount++;
+                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken).ConfigureAwait(false);
+                if (retryCount > maxRetryCount)
+                {
+                    throw;
+                }
+            }
+        }
 
         return outputFilePath;
     }
