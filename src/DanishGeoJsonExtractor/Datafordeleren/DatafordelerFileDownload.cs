@@ -51,7 +51,6 @@ internal sealed class DatafordelerFileDownload : IDisposable
             {
                 Mode = FileMode.Create,
                 Access = FileAccess.Write,
-                Share = FileShare.Read,
                 Options = FileOptions.WriteThrough
             });
 
