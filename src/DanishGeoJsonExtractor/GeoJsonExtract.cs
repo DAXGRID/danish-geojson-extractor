@@ -27,11 +27,11 @@ internal static class GeoJsonExtract
     {
         if (inputFileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
         {
-            return $"-f GeoJSON \"{outFileName}.geojson\" \"{inputFileName}\" -oo GEOM_POSSIBLE_NAMES=position";
+            return $"-f GeoJSON -lco overwrite=yes  \"{outFileName}.geojson\" \"{inputFileName}\" -oo GEOM_POSSIBLE_NAMES=position ";
         }
         else
         {
-            return $"-f GeoJSON \"{outFileName}.geojson\" \"{inputFileName}\" {layerNames}";
+            return $"-f GeoJSON -lco overwrite=yes \"{outFileName}.geojson\" \"{inputFileName}\" {layerNames}";
         }
     }
 

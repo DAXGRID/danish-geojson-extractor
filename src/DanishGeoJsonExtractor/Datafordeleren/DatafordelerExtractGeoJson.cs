@@ -90,10 +90,8 @@ internal sealed class DatafordelerExtractGeoJson
         await ZipFile.ExtractToDirectoryAsync(zipFileOutputPath, _setting.OutDirPath, true, cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation("Deleting {Name}, no longer needed.", zipFileOutputPath);
-        if (File.Exists(zipFileOutputPath))
-        {
-            File.Delete(zipFileOutputPath);
-        }
+
+        DeleteFileCheckExistCatchIoException(zipFileOutputPath);
 
         var extractedFile = Path.Combine(
             _setting.OutDirPath,
@@ -103,10 +101,8 @@ internal sealed class DatafordelerExtractGeoJson
 
         // Cleanup last extracted geojson file if it exists.
         var outputGeoJsonFileName = Path.Combine(_setting.OutDirPath, dataset, ".geojson");
-        if (File.Exists(outputGeoJsonFileName))
-        {
-            File.Delete(outputGeoJsonFileName);
-        }
+
+        DeleteFileCheckExistCatchIoException(outputGeoJsonFileName);
 
         var extractArguments = GeoJsonExtract.BuildArguments(dataset, extractedFile, dataset);
         _logger.LogDebug(
@@ -121,11 +117,23 @@ internal sealed class DatafordelerExtractGeoJson
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
-        if (File.Exists(extractedFile))
-        {
-            File.Delete(extractedFile);
-        }
+        DeleteFileCheckExistCatchIoException(extractedFile);
 
         _logger.LogInformation("Finished processing {Name}", dataset);
+    }
+
+    private void DeleteFileCheckExistCatchIoException(string file)
+    {
+        if (File.Exists(file))
+        {
+            try
+            {
+                File.Delete(file);
+            }
+            catch (IOException ex)
+            {
+                _logger.LogWarning("Could not delete file {FileName} because of error: {ErrorMessage}.", file, ex.Message);
+            }
+        }
     }
 }

@@ -42,42 +42,20 @@ internal sealed class DatafordelerFileDownload : IDisposable
 
         response.EnsureSuccessStatusCode();
 
-        var tempOutputFilePath = $"{Path.Combine(outputPath, latestGenerationFile.FileName)}.tmp";
         var outputFilePath = Path.Combine(outputPath, latestGenerationFile.FileName);
 
         using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
         using var fs = new FileStream(
-            tempOutputFilePath,
+            outputFilePath,
             new FileStreamOptions
             {
                 Mode = FileMode.Create,
                 Access = FileAccess.Write,
-                Share = FileShare.None,
+                Share = FileShare.Read,
                 Options = FileOptions.WriteThrough
             });
 
         await stream.CopyToAsync(fs, cancellationToken: cancellationToken).ConfigureAwait(false);
-        await fs.FlushAsync(cancellationToken).ConfigureAwait(false);
-
-        var retryCount = 0;
-        const int maxRetryCount = 10;
-        while (true)
-        {
-            try
-            {
-                File.Move(tempOutputFilePath, outputFilePath, overwrite: true);
-                break;
-            }
-            catch (IOException)
-            {
-                retryCount++;
-                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken).ConfigureAwait(false);
-                if (retryCount > maxRetryCount)
-                {
-                    throw;
-                }
-            }
-        }
 
         return outputFilePath;
     }
