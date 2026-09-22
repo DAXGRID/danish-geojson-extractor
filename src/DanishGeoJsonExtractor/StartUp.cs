@@ -1,3 +1,4 @@
+using DanishGeoJsonExtractor.Dagi;
 using DanishGeoJsonExtractor.Dar;
 using DanishGeoJsonExtractor.Dawa;
 using DanishGeoJsonExtractor.GeoDanmark;
@@ -16,6 +17,7 @@ internal sealed class StartUp
     private readonly DawaExtract _dawaExtract;
     private readonly StedNavnExtract _stedNavnExtract;
     private readonly DarExtract _darExtract;
+    private readonly DagiExtract _dagiExtract;
 
     public StartUp(
         ILogger<StartUp> logger,
@@ -24,7 +26,8 @@ internal sealed class StartUp
         MatrikelExtract matrikelExtract,
         DawaExtract dawaExtract,
         StedNavnExtract stedNavnExtract,
-        DarExtract darExtract)
+        DarExtract darExtract,
+        DagiExtract dagiExtract)
     {
         _setting = setting;
         _logger = logger;
@@ -33,6 +36,7 @@ internal sealed class StartUp
         _dawaExtract = dawaExtract;
         _stedNavnExtract = stedNavnExtract;
         _darExtract = darExtract;
+        _dagiExtract = dagiExtract;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken = default)
@@ -87,6 +91,16 @@ internal sealed class StartUp
                 .StartAsync(_setting, cancellationToken);
 
             tasks.Add(darExtractTask);
+        }
+
+        if (_setting.Dagi is not null)
+        {
+            _logger.LogInformation("Starting processing {Name}.", nameof(_setting.Dagi));
+
+            var dagiExtractTask = _dagiExtract
+                .StartAsync(_setting, cancellationToken);
+
+            tasks.Add(dagiExtractTask);
         }
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
