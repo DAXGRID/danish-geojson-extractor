@@ -108,7 +108,7 @@ internal sealed class DatafordelerFileDownload : IDisposable
     {
         async Task<DatafordelerFileResponse> GetAvailableFileDownloadsAsync(int pageNumber)
         {
-            var resourcePath = $"{_baseAddressApi}/FileDownloads/GetAvailableFileDownloads?Register={register}&format={format}&apikey={_setting.DatafordelerApiKey}&Version=3&Register={register}&PageNumber={pageNumber}";
+            var resourcePath = $"{_baseAddressApi}/FileDownloads/GetAvailableFileDownloads?Register={register}&format={format}&apikey={_setting.DatafordelerApiKey}&Version=3&PageNumber={pageNumber}";
 
             if (entity is not null)
             {
