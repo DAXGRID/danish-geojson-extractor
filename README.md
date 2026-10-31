@@ -13,7 +13,7 @@ By default it looks for the `appsettings.json` file in same folder as the binary
 Example:
 
 ```sh
-./my_executeable "/home/my_user/appsettings.json"
+./my_executable "/home/my_user/appsettings.json"
 ```
 
 ## Dependencies
