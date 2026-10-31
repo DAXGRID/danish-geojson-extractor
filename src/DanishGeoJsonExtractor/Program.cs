@@ -27,6 +27,16 @@ internal static class Program
 
         using var cancellationToken = new CancellationTokenSource();
 
+        Console.CancelKeyPress += (_, e) =>
+        {
+            // First Ctrl+C cancels gracefully, a second one terminates immediately.
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                e.Cancel = true;
+                cancellationToken.Cancel();
+            }
+        };
+
         using var serviceProvider = BuildServiceProvider(appSettingsFilePath);
 
         var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
@@ -40,7 +50,6 @@ internal static class Program
         }
         catch (Exception ex)
         {
-            await cancellationToken.CancelAsync().ConfigureAwait(false);
             logger.LogError("{Exception}, {ExceptionMessage}", ex, ex.Message);
             throw;
         }
