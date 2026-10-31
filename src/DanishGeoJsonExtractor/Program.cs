@@ -29,14 +29,14 @@ internal static class Program
 
         using var serviceProvider = BuildServiceProvider(appSettingsFilePath);
 
-        var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
-        var logger = loggerFactory!.CreateLogger(nameof(Program));
+        var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+        var logger = loggerFactory.CreateLogger(nameof(Program));
 
-        var start = serviceProvider.GetService<StartUp>();
+        var start = serviceProvider.GetRequiredService<StartUp>();
 
         try
         {
-            await start!.StartAsync(cancellationToken.Token).ConfigureAwait(false);
+            await start.StartAsync(cancellationToken.Token).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
